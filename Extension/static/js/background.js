@@ -6,6 +6,14 @@ chrome.action.onClicked.addListener(function () {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.command === "showToolbar") {
+    const options = {
+      method: 'GET'
+    };
+    
+    fetch('http://192.168.65.207:8000/start-session?user_id=1&session_id=1', options)
+      .then(response => response.json())
+      .then(response => console.log("TESTING SOMETHING",response))
+      .catch(err => console.error("ERROR WHEN TESTING",err));
     toolbarShown = true;
     chrome.tabs.query({}, function (tabs) {
       tabs.forEach((tab) => {
@@ -14,6 +22,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     });
   } else if (message.command === "hideToolbar") {
+    const options = {
+      method: 'GET'
+    };
+    
+    fetch('http://192.168.65.207:8000/end-session?user_id=1&session_id=1', options)
+      .then(response => response.json())
+      .then(response => console.log("TESTING SOMETHING",response))
+      .catch(err => console.error("ERROR WHEN TESTING",err));
     toolbarShown = false;
     chrome.tabs.query({}, function (tabs) {
       tabs.forEach((tab) => {
