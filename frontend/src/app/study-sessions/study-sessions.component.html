@@ -7,12 +7,12 @@
         <h4>{{ studySession.session_name }}</h4>
         <span class="ms-auto">
           <a
-            routerLink="/study-session-stats"
+            [routerLink]="['/study-session-stats', studySession.session_id]"
             class="btn btn-primary btn-sm ms-2"
-            >Session Report</a
+            >Session Statistics</a
           >
           <a
-            routerLink="/study-session-notes"
+            [routerLink]="['/study-session-notes', studySession.session_id]"
             class="btn btn-primary btn-sm ms-2"
             >Refer Notes</a
           >
@@ -21,16 +21,17 @@
       <div class="d-flex">
         <span class="me-auto">
           <span class="me-4 date">{{
-            studySession.session_start | date : "longDate"
+            studySession.created_at | date : "longDate"
           }}</span>
           <span class="me-4 time">
-            {{ studySession.session_start | date : "shortTime" }} -
-            {{ studySession.session_end | date : "shortTime" }}
+            {{ studySession.created_at | date : "shortTime" }} -
+            {{ studySession.ended_at | date : "shortTime" }}
           </span>
         </span>
         <span class="ms-auto">
           <a
             routerLink="/study-session-quiz"
+            [routerLink]="['/study-session-quiz', studySession.session_id]"
             class="btn btn-primary btn-sm ms-2"
             >Take Quiz</a
           >

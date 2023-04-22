@@ -1,6 +1,11 @@
 export interface StudySession {
   session_id: string;
   session_name: string;
-  session_start: Date;
-  session_end: Date;
+  created_at: Date;
+  ended_at: Date;
+}
+
+export interface Note {
+    type: string;
+    content: string | string[];
 }

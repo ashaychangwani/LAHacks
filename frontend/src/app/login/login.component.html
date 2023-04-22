@@ -1,0 +1,19 @@
+<ng-container *ngIf="auth.isAuthenticated$ | async; else loggedout">
+</ng-container>
+
+<ng-template #loggedout>
+  <div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold">Login with Auto0</h1>
+    <div class="col-lg-6 mx-auto">
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button
+          type="button"
+          class="btn btn-success mt-3 px-4 gap-3"
+          (click)="auth.loginWithRedirect()"
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

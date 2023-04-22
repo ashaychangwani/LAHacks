@@ -1,17 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { StudySession } from './interfaces';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { StudySession, Note } from './interfaces';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
+  getStudySessions(user_email: string) {
+    // let queryParams = new HttpParams();
+    // queryParams = queryParams.append("user_id", user_email);
+    // return this.http.get<StudySession[]>(
+    //   '/get-sessions',
+    //   {params:queryParams}
+    // );
+    return this.http.get<StudySession[]>('/assets/sessions.json');
+  }
 
-  getStudySessions() {
-    return this.http.get<StudySession[]>(
-      '/assets/sessions.json'
-    );
+  getStudySessionNotes(user_email: string, session_id: string) {
+    // let queryParams = new HttpParams();
+    // queryParams = queryParams.append("user_id", user_email);
+    // queryParams = queryParams.append("session_id", userEmail);
+    // return this.http.get<StudySession[]>(
+    //   '/get-session',
+    //   {params:queryParams}
+    // );
+    return this.http.get<Note[]>('/assets/notes.json');
   }
 }

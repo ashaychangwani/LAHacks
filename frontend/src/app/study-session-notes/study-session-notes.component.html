@@ -1,1 +1,15 @@
-<p>study-session-notes works!</p>
+<div *ngFor="let note of studyNotes | async">
+  <div *ngIf="note.type == 'heading'">
+    <h1>{{ note.content }}</h1>
+  </div>
+
+  <div *ngIf="note.type == 'paragraph'">
+    <p>{{ note.content }}</p>
+  </div>
+
+  <div *ngIf="note.type == 'list'">
+    <ul>
+      <li>{{ note.content }}</li>
+    </ul>
+  </div>
+</div>

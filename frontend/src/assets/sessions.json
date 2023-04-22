@@ -2,25 +2,7 @@
   {
     "session_id": "1",
     "session_name": "Session 1",
-    "session_start": "Tue Nov 05 1985 06:23:20 GMT+0530 (IST)",
-    "session_end": "Tue Nov 05 1985 07:00:00 GMT+0530 (IST)"
-  },
-  {
-    "session_id": "2",
-    "session_name": "Session 2",
-    "session_start": "Tue Nov 06 1985 06:23:20 GMT+0530 (IST)",
-    "session_end": "Tue Nov 06 1985 07:00:00 GMT+0530 (IST)"
-  },
-  {
-    "session_id": "3",
-    "session_name": "Session 3",
-    "session_start": "Tue Nov 07 1985 06:23:20 GMT+0530 (IST)",
-    "session_end": "Tue Nov 07 1985 07:00:00 GMT+0530 (IST)"
-  },
-  {
-    "session_id": "4",
-    "session_name": "Session 4",
-    "session_start": "Tue Nov 08 1985 06:23:20 GMT+0530 (IST)",
-    "session_end": "Tue Nov 08 1985 07:00:00 GMT+0530 (IST)"
+    "created_at": "Tue Nov 05 1985 06:23:20 GMT+0530 (IST)",
+    "ended_at": "Tue Nov 05 1985 07:00:00 GMT+0530 (IST)"
   }
 ]

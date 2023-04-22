@@ -1,18 +1,14 @@
 [
   {
-    "type": "1",
-    "content": "Session 1"
+    "type": "heading",
+    "content": "Heading 1"
   },
   {
-    "type": "1",
-    "content": "Session 1"
+    "type": "list",
+    "content": ["item 1", "item 2", "item 3"]
   },
   {
-    "type": "1",
-    "content": "Session 1"
-  },
-  {
-    "type": "1",
-    "content": "Session 1"
+    "type": "paragraph",
+    "content": "lorem ipsum dolor sit amet"
   }
 ]
