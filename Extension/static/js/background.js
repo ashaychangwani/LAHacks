@@ -40,8 +40,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         chrome.tabs.sendMessage(tab.id, { message: "hideToolbar" });
       });
     });
-  } else if (message.command === "url") {
-    console.log("background", message.url);
   }
 });
 
