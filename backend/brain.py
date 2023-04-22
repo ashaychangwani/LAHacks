@@ -1,4 +1,4 @@
-from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from __init__ import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -166,9 +166,43 @@ def end_session(user_id, session_id):
     else:
         raise Exception("User not found")
 
-def captions_from_youtube(url):
-    transcript = YouTubeTranscriptApi.get_transcript(url, cookies='tmp/cookies.txt')
-    print(transcript)
+def captions_from_youtube(user_id, session_id, id, title):
+    transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
+    #Example transcript {'text': 'pursuant to New York Civil Code a', 'start': 5.359, 'duration': 3.521}
+    #combine into chunks of 30 seconds of transcripts
+    i = 0
+    blobs = [{
+        "type": "heading",
+        "content": title,
+        "reference": f"https://www.youtube.com/watch?v={id}"
+    }]
+    while i < len(transcripts):
+        blob = {}
+        text = transcripts[i]['text']
+        start = transcripts[i]['start']
+        reference = f"https://youtu.be/{id}?t={int(start)}"
+        i += 1
+        while i < len(transcripts) and transcripts[i]['start'] - start < 30:
+            text += " "+transcripts[i]['text']
+            i += 1
+        blob['type'] = 'paragraph'
+        blob['content'] = text
+        blob['reference'] = reference
+        blobs.append(blob)
+
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                session['blobs'].extend(blobs)
+                break
+        users_ref.document(user_id).set(user)
+    return {
+        "content": blobs
+    }
+    
 
 if __name__ == '__main__':
-    captions_from_youtube('J6UgSxeqVlc')
+    captions_from_youtube('1','1','J6UgSxeqVlc','Title')
