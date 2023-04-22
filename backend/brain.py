@@ -7,7 +7,7 @@ def feedback(question, reference_answer, chosen_answer, context, references=None
     system_query = feedback_system.format()
     user_query = feedback_user.format(question=question, reference_answer=reference_answer, chosen_answer=chosen_answer, context=context)
     response = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
+        model='gpt-4',
         messages=[
             {"role": "system", "content": system_query},
             {"role": "user", "content": user_query},
@@ -32,7 +32,7 @@ def transcribe(audio_bytes):
 
 def summarize(text):
     summary = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
+        model='gpt-4',
         messages=[
             {"role": "system", "content": summarize_system},
             {"role": "user", "content": text},
@@ -54,7 +54,7 @@ def generate_questions(text: str, num_questions: int = 5):
         try:
             prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
             response = openai.ChatCompletion.create(
-                model='gpt-3.5-turbo',
+                model='gpt-4',
                 messages=[
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": text},
