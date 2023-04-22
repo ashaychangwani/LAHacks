@@ -3,7 +3,31 @@ import json
 import openai
 import traceback
 import datetime
+from youtube_transcript_api import YouTubeTranscriptApi  
+from PyPDF2 import PdfReader
+import requests
+import urllib
+from urllib.parse import urlparse, parse_qs
 
+def extract_video_id(url):
+    query = urlparse(url)
+    
+    if query.hostname == 'youtu.be':
+        return query.path[1:]
+    
+    if query.hostname in ('www.youtube.com', 'youtube.com'):
+        if query.path == '/watch':
+            p = parse_qs(query.query)
+            return p['v'][0]
+        
+        if query.path[:7] == '/embed/':
+            return query.path.split('/')[2]
+        
+        if query.path[:3] == '/v/':
+            return query.path.split('/')[2]
+    
+    # fail?
+    return None
 def feedback(question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
     user_query = feedback_user.format(question=question, reference_answer=reference_answer, chosen_answer=chosen_answer, context=context)
@@ -31,7 +55,7 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(user_id, session_id, text, source):
+def summarize(user_id, session_id, text, reference, save=True):
     try:
         summary = openai.ChatCompletion.create(
             model='gpt-4',
@@ -46,10 +70,10 @@ def summarize(user_id, session_id, text, source):
         summary = summary['choices'][0]['message']['content']
         blobs = json.loads(summary)
         for blob in blobs:
-            blob['source'] = source 
+            blob['reference'] = reference 
         users_ref = firebase_db.collection(u'users')
         user = users_ref.document(user_id).get()
-        if user.exists:
+        if save and user.exists:
             user = user.to_dict()
             for session in user['sessions']:
                 if session['session_id'] == session_id:
@@ -57,10 +81,11 @@ def summarize(user_id, session_id, text, source):
                     break
             users_ref.document(user_id).set(user)
         return {
-            "summary": summary
+            "blobs": blobs
         }
-    except:
-        return summarize(user_id, session_id, text, source)
+    except Exception as e:
+        print("Exception in summarize",e,traceback.format_exc())
+        return summarize(user_id, session_id, text, reference)
 
 def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
@@ -78,11 +103,19 @@ def generate_questions(user_id, session_id, num_questions = 5):
             user_session = session
             for blob in session['blobs']:
                 if isinstance(blob['content'], str):
-                    text.append(blob['content'])
+                    text.append({
+                        "content": blob['content'],
+                        "reference": blob['reference']
+                    })
                 else:
+                    text.append({
+                        #lambda to add all content objects of children
+                        "content": '\n'.join(blob['content']),
+                        "reference": blob['reference']
+                    })
                     text.extend(blob['content'])
             break
-    text = '\n'.join(text)
+    text = json.dumps(text)
     while len(questions) < num_questions:
         try:
             prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
@@ -125,7 +158,6 @@ def start_session(user_id, session_id):
         "created_at": datetime.datetime.now(),
         "session_id": session_id,
         "blobs" : [],
-        
     }
     if user.exists:
         user = user.to_dict()
@@ -157,4 +189,94 @@ def end_session(user_id, session_id):
             raise Exception("Session not found")
     else:
         raise Exception("User not found")
-    
+
+def captions_from_youtube(user_id, session_id, url, title):
+    id = extract_video_id(url)
+    transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
+    i = 0
+    blobs = [{
+        "type": "heading",
+        "content": title,
+        "reference": f"https://www.youtube.com/watch?v={id}"
+    }]
+    while i < len(transcripts):
+        blob = {}
+        text = transcripts[i]['text']
+        start = transcripts[i]['start']
+        reference = f"https://youtu.be/{id}?t={int(start)}"
+        i += 1
+        while i < len(transcripts) and transcripts[i]['start'] - start < YOUTUBE_BLOB_SIZE:
+            text += " "+transcripts[i]['text']
+            i += 1
+        blobs.extend(summarize(user_id, session_id, text, reference, save=False)['blobs'])
+
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                session['blobs'].extend(blobs)
+                break
+        users_ref.document(user_id).set(user)
+    return {
+        "content": blobs
+    }
+
+def get_sessions(user_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        #delete the blobs object from each session
+        for session in user['sessions']:
+            del session['blobs']
+            
+        return user['sessions']
+    else:
+        return []
+
+def summarize_pdf(user_id, session_id, url):
+    try:
+        response = requests.get(url)
+        with open('tmp/pdf.pdf', 'wb') as f:
+            f.write(response.content)
+        reader = PdfReader('tmp/pdf.pdf')
+        blobs = [{
+            "type": "heading",
+            "content": url,
+            "reference": url
+        }]
+        for page in reader.pages:
+            text = page.extract_text()
+            blobs.extend(summarize(user_id, session_id, text, url, save=False))
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if user.exists:
+            user = user.to_dict()
+            for session in user['sessions']:
+                if session['session_id'] == session_id:
+                    session['blobs'].extend(blobs)
+                    break
+            users_ref.document(user_id).set(user)
+        return {
+            "content": blobs
+        }
+    except Exception as e:
+        print("EXception occured", e, traceback.format_exc())
+
+def get_session(user_id, session_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                return session
+        else:
+            raise Exception("Session not found")
+    else:
+        raise Exception("User not found")
+
+if __name__ == '__main__':
+    summarize_pdf('1', '1', 'https://www.cms.gov/About-CMS/Agency-Information/OMH/Downloads/MMDT-Quick-Start-Guide.pdf')
