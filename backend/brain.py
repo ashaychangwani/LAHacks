@@ -40,4 +40,6 @@ def summarize(text):
         timeout=10,
     )
     summary = summary['choices'][0]['message']['content'][9:]
-    return summary
+    return {
+        "summarized_text": summary
+    }
