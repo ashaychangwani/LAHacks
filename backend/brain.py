@@ -1,8 +1,9 @@
-from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from __init__ import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
 import datetime
+from youtube_transcript_api import YouTubeTranscriptApi  
 
 def feedback(question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
@@ -157,4 +158,10 @@ def end_session(user_id, session_id):
             raise Exception("Session not found")
     else:
         raise Exception("User not found")
-    
+
+def captions_from_youtube(url):
+    transcript = YouTubeTranscriptApi.get_transcript(url, cookies='tmp/cookies.txt')
+    print(transcript)
+
+if __name__ == '__main__':
+    captions_from_youtube('J6UgSxeqVlc')
