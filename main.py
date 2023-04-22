@@ -144,11 +144,31 @@ def get_questions(user_id, session_id):
 
 @app.get("/start-session")
 def start_session(user_id, session_id):
+    """Start a new Session
+
+    Args:
+        user_id (str)
+        session_id (str)
+
+    Returns:
+        dict:
+            status (str): The status of the operation. Will be ok
+    """
     brain.start_session(user_id, session_id)
     return {"status": "ok"}
 
 @app.get("/end-session")
 def end_session(user_id, session_id):  
+    """End a Session
+
+    Args:
+        user_id (str)
+        session_id (str)
+
+    Returns:
+        dict:
+            status (str): The status of the operation. Will be ok
+    """
     brain.end_session(user_id, session_id)
     return {"status": "ok"}
 
