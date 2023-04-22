@@ -17,8 +17,12 @@
   "background": {
     "service_worker": "static/js/background.js"
   },
+  "icons": {
+    "16": "icons/duck_read.png"
+  },
   "permissions": ["activeTab", "tabs", "storage", "cookies", "identity"],
   "action": {
     "default_popup": "templates/popup.html"
-  }
+  },
+  "host_permissions": ["https://192.168.65.207/*", "http://192.168.65.207/*"]
 }

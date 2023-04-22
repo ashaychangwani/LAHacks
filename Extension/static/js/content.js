@@ -69,35 +69,44 @@ function createToolbar(show) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.message === "showToolbar") {
-    fetch('http://localhost:8000/start-session', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        "user_id": chrome.storage.local.get("user_id"),
-        "session_id": chrome.storage.local.get("session_id")
+    console.log("showToolbar before fetch ");
+    fetch("http://192.168.65.207:8000/start-session?user_id=1&session_id=1", {
+      method: "GET",
+      headers: {},
+      mode: "no-cors",
+      base: "http://192.168.65.207/",
+      referrerPolicy: "unsafe-url",
+    })
+      .then((response) => {
+        console.log("showToolbar after fetch ");
+        createToolbar(true);
       })
-    }).then(response => {
-
-      console.log("in content show toolbar message received");
-      createToolbar(true);  
-    }).catch(error => {
-    });
+      .catch((error) => {
+        console.log("fetch", error);
+      });
   } else if (message.message === "hideToolbar") {
-      fetch('http://localhost:8000/end-session', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        "user_id": chrome.storage.local.get("user_id"),
-        "session_id": chrome.storage.local.get("session_id")
+    console.log("showToolbar before fetch ");
+    fetch("http://192.168.65.207:8000/end-session?user_id=1&session_id=1", {
+      method: "GET",
+      headers: {},
+      mode: "no-cors",
+      base: "http://192.168.65.207/",
+      referrerPolicy: "unsafe-url",
+    })
+      .then((response) => {
+        createToolbar(false);
+        chrome.storage.local.remove("session_id");
       })
-    }).then(response => {
-      createToolbar(false);
-      chrome.storage.local.remove("session_id")
-    }).catch(error => {
-    });
+      .catch((error) => {});
   }
 });
+
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//   if (message.message === "showToolbar") {
+//     console.log("in content show toolbar message received");
+//     createToolbar(true);
+//   } else if (message.message === "hideToolbar") {
+//     createToolbar(false);
+//     chrome.storage.local.remove("session_id");
+//   }
+// });

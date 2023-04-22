@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const sessionUUID = document.getElementById("session-uuid");
 
   chrome.storage.local.get(
-    ["sessionActive", "sessionUUID"],
-    ({ sessionActive, sessionUUID: uuid }) => {
+    ["sessionActive", "session_id"],
+    ({ sessionActive, session_id: uuid }) => {
       if (sessionActive) {
         startButton.innerText = "End Session";
         sessionUUID.innerText = uuid;
@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   startButton.addEventListener("click", () => {
     chrome.storage.local.get(
-      ["sessionActive", "sessionUUID"],
-      ({ sessionActive, sessionUUID: uuid }) => {
+      ["sessionActive", "session_id"],
+      ({ sessionActive, session_id: uuid }) => {
         if (!sessionActive) {
           const newUUID = generateUUID();
           chrome.storage.local.set({ session_id: newUUID });
