@@ -68,13 +68,13 @@ def generate_questions(session: Session, num_questions: int = 5):
     return questions
 
 @app.get("/start-session")
-def start_session(session: Session):
-    brain.start_session(session.user_id, session.session_id)
+def start_session(user_id, session_id):
+    brain.start_session(user_id, session_id)
     return {"status": "ok"}
 
 @app.get("/end-session")
-def end_session(session: Session):  
-    brain.end_session(session.user_id, session.session_id)
+def end_session(user_id, session_id):  
+    brain.end_session(user_id, session_id)
     return {"status": "ok"}
 
 @app.post("/yt-summarize")
@@ -88,6 +88,6 @@ def get_sessions(user_id):
     return sessions
 
 @app.get("/get-session")
-def get_session(session: Session):
-    session = brain.get_session(session.user_id, session.session_id)
+def get_session(user_id, session_id):
+    session = brain.get_session(user_id, session_id)
     return session
