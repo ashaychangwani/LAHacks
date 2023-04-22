@@ -32,7 +32,7 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(user_id, session_id, text, reference):
+def summarize(user_id, session_id, text, reference, save=True):
     try:
         summary = openai.ChatCompletion.create(
             model='gpt-4',
@@ -50,7 +50,7 @@ def summarize(user_id, session_id, text, reference):
             blob['reference'] = reference 
         users_ref = firebase_db.collection(u'users')
         user = users_ref.document(user_id).get()
-        if user.exists:
+        if save and user.exists:
             user = user.to_dict()
             for session in user['sessions']:
                 if session['session_id'] == session_id:
@@ -58,7 +58,7 @@ def summarize(user_id, session_id, text, reference):
                     break
             users_ref.document(user_id).set(user)
         return {
-            "summary": summary
+            "blobs": blobs
         }
     except:
         return summarize(user_id, session_id, text, reference)
@@ -183,10 +183,7 @@ def captions_from_youtube(user_id, session_id, id, title):
         while i < len(transcripts) and transcripts[i]['start'] - start < 120:
             text += " "+transcripts[i]['text']
             i += 1
-        blob['type'] = 'paragraph'
-        blob['content'] = text
-        blob['reference'] = reference
-        blobs.append(blob)
+        blobs.extend(summarize(user_id, session_id, text, reference, save=False)['blobs'])
 
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
@@ -203,4 +200,9 @@ def captions_from_youtube(user_id, session_id, id, title):
     
 
 if __name__ == '__main__':
-    captions_from_youtube('1','1','J6UgSxeqVlc','Title')
+    captions_from_youtube(
+	user_id= "1",
+	session_id= "1",
+	id= "jKF5GtBIxpM",
+	title= "The open source alternative to my sponsor - Jellyfin vs Plex"
+)
