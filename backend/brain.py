@@ -4,7 +4,30 @@ import openai
 import traceback
 import datetime
 from youtube_transcript_api import YouTubeTranscriptApi  
+from PyPDF2 import PdfReader
+import requests
+import urllib
+from urllib.parse import urlparse, parse_qs
 
+def extract_video_id(url):
+    query = urlparse(url)
+    
+    if query.hostname == 'youtu.be':
+        return query.path[1:]
+    
+    if query.hostname in ('www.youtube.com', 'youtube.com'):
+        if query.path == '/watch':
+            p = parse_qs(query.query)
+            return p['v'][0]
+        
+        if query.path[:7] == '/embed/':
+            return query.path.split('/')[2]
+        
+        if query.path[:3] == '/v/':
+            return query.path.split('/')[2]
+    
+    # fail?
+    return None
 def feedback(question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
     user_query = feedback_user.format(question=question, reference_answer=reference_answer, chosen_answer=chosen_answer, context=context)
@@ -60,7 +83,8 @@ def summarize(user_id, session_id, text, reference, save=True):
         return {
             "blobs": blobs
         }
-    except:
+    except Exception as e:
+        print("Exception in summarize",e,traceback.format_exc())
         return summarize(user_id, session_id, text, reference)
 
 def generate_questions(user_id, session_id, num_questions = 5):
@@ -166,7 +190,8 @@ def end_session(user_id, session_id):
     else:
         raise Exception("User not found")
 
-def captions_from_youtube(user_id, session_id, id, title):
+def captions_from_youtube(user_id, session_id, url, title):
+    id = extract_video_id(url)
     transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
     i = 0
     blobs = [{
@@ -180,7 +205,7 @@ def captions_from_youtube(user_id, session_id, id, title):
         start = transcripts[i]['start']
         reference = f"https://youtu.be/{id}?t={int(start)}"
         i += 1
-        while i < len(transcripts) and transcripts[i]['start'] - start < 120:
+        while i < len(transcripts) and transcripts[i]['start'] - start < YOUTUBE_BLOB_SIZE:
             text += " "+transcripts[i]['text']
             i += 1
         blobs.extend(summarize(user_id, session_id, text, reference, save=False)['blobs'])
@@ -197,12 +222,34 @@ def captions_from_youtube(user_id, session_id, id, title):
     return {
         "content": blobs
     }
-    
+
+def get_sessions(user_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        #delete the blobs object from each session
+        for session in user['sessions']:
+            del session['blobs']
+            
+        return user['sessions']
+    else:
+        return []
+
+def summarize_pdf(user_id, session_id, url):
+    try:
+        response = requests.get(url)
+        with open('tmp/pdf.pdf', 'wb') as f:
+            f.write(response.content)
+        text = textract.process('tmp/pdf.pdf').decode("utf-8")
+        return summarize(user_id, session_id, text, url)
+    except Exception as e:
+        print("EXception occured", e, traceback.format_exc())
 
 if __name__ == '__main__':
     captions_from_youtube(
 	user_id= "1",
 	session_id= "1",
-	id= "jKF5GtBIxpM",
+	url= "https://www.youtube.com/watch?v=jKF5GtBIxpM",
 	title= "The open source alternative to my sponsor - Jellyfin vs Plex"
 )

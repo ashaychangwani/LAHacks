@@ -26,7 +26,7 @@ class Session(BaseModel):
     user_id: str
 
 class YouTubeSession(Session):
-    id: str
+    url: str
     title: str
 
 class Content(BaseModel):
@@ -79,5 +79,10 @@ def end_session(session: Session):
 
 @app.post("/yt-summarize")
 def yt_summarize(ytSession: YouTubeSession):
-    summary = brain.captions_from_youtube(ytSession.user_id, ytSession.session_id, ytSession.id, ytSession.title)
+    summary = brain.captions_from_youtube(ytSession.user_id, ytSession.session_id, ytSession.url, ytSession.title)
     return {"status": "ok"}
+
+@app.get("/get-sessions")
+def get_session(user_id):
+    sessions = brain.get_sessions(user_id)
+    return sessions
