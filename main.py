@@ -44,6 +44,23 @@ async def status():
 
 @app.post('/feedback')
 async def feedback(feedback: Feedback):
+    """Provide feedback for each answered question
+
+    Args:
+        feedback (Feedback): 
+            question (str): The question that was asked
+            reference_answer (list[str]): The correct answer (1 or more in case of MultipleAnswer type)
+            chosen_answer (list[str]): The answer that was chosen (1 or more in case of MultipleAnswer type)
+            context (str): The context of the question
+            references (list[str]): The references used to answer the question
+
+    Returns:
+        Dict: 
+            status (str): The status of the operation. Will be Correct or Incorrect
+            feedback (str): The feedback for the question and their answer
+            references (list[str]): The references used to answer the question, to be shown with feedback
+
+    """
     feedback = brain.feedback(feedback.question, feedback.reference_answer, feedback.chosen_answer, feedback.context, feedback.references)
     return feedback
 

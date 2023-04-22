@@ -49,7 +49,8 @@ def feedback(question, reference_answer, chosen_answer, context, references=None
     feedback = response.split('\n')[1].split(': ')[1]
     return {
         "status": status,
-        "feedback": feedback
+        "feedback": feedback,
+        "references": references
     }
     
 
