@@ -101,10 +101,23 @@ async def summarize_text(rawText: RawText):
     asyncio.create_task(brain.summarize(rawText.user_id, rawText.session_id, rawText.text, rawText.source))
     return {"status": "ok"}
 
-@app.post("/questions")
-def generate_questions(session: Session, num_questions: int = 5):
-    questions = brain.generate_questions(session.user_id, session.session_id)
-    return questions
+@app.post("/generate-questions")
+async def generate_questions(session: Session, num_questions: int = 5):
+    """Start generating questions for the session
+
+    Args:
+        session (Session): Session Object
+            session_id (str): The session id
+            user_id (str): The user id
+
+        num_questions (int, optional): _description_. Defaults to 10.
+
+    Returns:
+        dict: 
+            status (str): The status of the operation. Will be ok
+    """
+    asyncio.create_task(brain.generate_questions(session.user_id, session.session_id))
+    return {"status": "ok"}
 
 @app.get("/start-session")
 def start_session(user_id, session_id):

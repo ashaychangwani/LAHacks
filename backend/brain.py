@@ -91,7 +91,7 @@ async def summarize(user_id, session_id, text, reference, save=True):
         print("Exception in summarize",e,traceback.format_exc())
         return summarize(user_id, session_id, text, reference)
 
-def generate_questions(user_id, session_id, num_questions = 5):
+async def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
     prev_questions = []
     response = None
@@ -120,10 +120,12 @@ def generate_questions(user_id, session_id, num_questions = 5):
                     text.extend(blob['content'])
             break
     text = json.dumps(text)
+    user_session['quiz'] = {}
+    users_ref.document(user_id).set(user)
     while len(questions) < num_questions:
         try:
             prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
-            response = openai.ChatCompletion.create(
+            response = await openai.ChatCompletion.acreate(
                 model='gpt-4',
                 messages=[
                     {"role": "system", "content": prompt},
@@ -134,22 +136,21 @@ def generate_questions(user_id, session_id, num_questions = 5):
                 top_p=1,
                 timeout=10,
             )
-
+            print("got question")
             question = response['choices'][0]['message']['content']
             question_obj = json.loads(question)
 
             if isinstance(question_obj, dict):
+                print("question was valid")
                 questions.append(question_obj)
                 prev_questions.append(question_obj['question'])
+                user_session['quiz']['questions'] = questions
+                users_ref.document(user_id).set(user)
             else:
                 raise FormatError
         except Exception as e:
             print(traceback.format_exc())
             print("An error occurred, printing stack trace", response)
-    user_session['quiz'] = {}
-    user_session['quiz']['questions'] = questions
-    #set the session in user
-    users_ref.document(user_id).set(user)
 
     return {
         "questions": questions
