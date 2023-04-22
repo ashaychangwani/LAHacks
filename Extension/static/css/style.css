@@ -1,0 +1,26 @@
+/* .my-new-btn {
+  color: black;
+  background-color: lightblue;
+} */
+
+.my-new-btn {
+  background-color: lightblue;
+  border: none;
+  color: black;
+  padding: 12px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px;
+  border-radius: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.my-new-btn:hover {
+  background-color: #0066ff;
+  color: white;
+  cursor: pointer;
+  transform: scale(1.05);
+}
