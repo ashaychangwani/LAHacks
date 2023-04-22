@@ -2,6 +2,11 @@
   "manifest_version": 3,
   "name": "Notes App",
   "version": "1.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4BJCAaHxmmsCJHWr44tdghg9Gu450uErIXY19P2pA6bKELF9dx4ymIULDHnIm1V+aOA4IBh16Pb70+TfUlrliHWASqBgmjmsyaxiBM02di+/HyejDG4O2uAuRhkY5cCcdgzD1VcmckL+KacEngnp2FHAsOAXk2beSbWpmp0lL3ZMCTv+iDTJbX/nMpGjpfUg+GNQd5GFzIr4j7DaulWC5+jByMl1u0TGaNr/MkE/3Fk8g9MwMhmG/fsqvPdQtwBVsGeMuZyHng54mrQ5RgT7j/LYbEJr4M/YlwMjwUrBjkBTwoxp6oM9Pr6lF/fepvU9M/U3ALaqFSrV75eg7ab+rQIDAQAB",
+  "oauth2": {
+    "client_id": "265391221928-i8ikiqqeeb98107l7rc3bim7hdpmar31.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -12,7 +17,7 @@
   "background": {
     "service_worker": "static/js/background.js"
   },
-  "permissions": ["activeTab", "tabs", "storage", "cookies"],
+  "permissions": ["activeTab", "tabs", "storage", "cookies", "identity"],
   "action": {
     "default_popup": "templates/popup.html"
   }

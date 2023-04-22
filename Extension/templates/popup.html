@@ -6,6 +6,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="../static/css/bootstrap.css" rel="stylesheet" />
+
+    <style>
+        button {
+            padding: 10px;
+            background-color: #3C79F8;
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,10 +21,31 @@
         <a class="navbar-brand" href="#">Session UUID: <span id="session-uuid"></span></a>
     </nav>
     <div class="container d-flex justify-content-center align-items-center" style="height: 100px; width: 150px">
-        <button id="start-session" class="btn btn-success btn-lg">Start Session</button>
+        <button id="start-session" class="btn btn-success btn-lg" style="display:none">Start Session</button>
     </div>
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100px; width: 150px">
+        <button id="login" class="btn btn-success btn-lg">Login</button>
+    </div>
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100px; width: 150px">
+        <button id="logout" class="btn btn-danger btn-lg">Logout</button>
+    </div>
+
 </body>
 <script src="../static/js/bootstrap.bundle.js"></script>
 <script src="../static/js/popup.js"></script>
+<script type="text/javascript" src="../static/js/oauth.js"></script>
+<script>
+    // Check user authentication status and show/hide buttons accordingly
+    const token = localStorage.getItem('access_token');
+    if (token) {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('start-session').style.display = 'inline-block';
+        document.getElementById('logout').style.display = 'inline-block';
+    } else {
+        document.getElementById('login').style.display = 'inline-block';
+        document.getElementById('start-session').style.display = 'none';
+        document.getElementById('logout').style.display = 'none';
+    }
+</script>
 
 </html>

@@ -1,5 +1,9 @@
 let toolbarShown = false;
 
+chrome.action.onClicked.addListener(function () {
+  chrome.tabs.create({ url: "index.html" });
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.command === "showToolbar") {
     toolbarShown = true;

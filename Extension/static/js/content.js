@@ -17,17 +17,18 @@ function createToolbar(show) {
     toolbar = document.createElement("div");
     toolbar.id = "my-toolbar";
     toolbar.innerHTML = `
-      <button class="toolbar-btn my-new-btn" id="add-web-page">Add web page</button>
-      <button class="toolbar-btn my-new-btn" id="add-selection">Add selection</button>
-      <button class="toolbar-btn my-new-btn" id="add-graphically">Add graphically</button>
-      <button class="toolbar-btn my-new-btn" id="add-video">Add video</button>
-    `;
+    <button class="toolbar-btn my-new-btn" id="add-web-page">Add web page</button>
+    <button class="toolbar-btn my-new-btn" id="add-selection">Add selection</button>
+    <button class="toolbar-btn my-new-btn" id="add-graphically">Add graphically</button>
+    <button class="toolbar-btn my-new-btn" id="add-video">Add video</button>
+  `;
     toolbar.style.position = "fixed";
     toolbar.style.top = "0";
-    toolbar.style.left = "0";
-    toolbar.style.width = "100%";
+    toolbar.style.right = "0"; // changed from "left" to "right"
     toolbar.style.backgroundColor = "#f2f2f2";
     toolbar.style.zIndex = "9999";
+    toolbar.style.display = "flex"; // added to make the buttons align vertically
+    toolbar.style.flexDirection = "column"; // added to make the buttons align vertically
     document.body.appendChild(toolbar);
   }
 
