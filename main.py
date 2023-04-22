@@ -18,6 +18,16 @@ class RawText(BaseModel):
 class Context(BaseModel):
     text: str
 
+class Session(BaseModel):
+    session_id: str
+    user_id: str
+
+class Content(BaseModel):
+    session_id: str
+    user_id: str
+    content: str
+    reference_url: str
+
 app = FastAPI()
 
 @app.get('/')
@@ -48,5 +58,15 @@ def summarize_text(rawText: RawText):
 @app.post("/questions")
 def generate_questions(context: Context, num_questions: int = 5):
     questions = brain.generate_questions(context.text, num_questions)
-    print(questions)
     return questions
+
+@app.get("/start-session")
+def start_session(session: Session):
+    brain.start_session(session.user_id, session.session_id)
+    return {"status": "ok"}
+
+@app.get("/end-session")
+def end_session(session: Session):  
+    brain.end_session(session.user_id, session.session_id)
+    return {"status": "ok"}
+

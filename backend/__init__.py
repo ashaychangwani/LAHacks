@@ -1,14 +1,17 @@
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_random_exponential,
-)  
+from dotenv import load_dotenv
+load_dotenv()
 import openai
 import os
 import cohere
-from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
-load_dotenv()
+cred = credentials.Certificate("firebase_config.json")
+
+firebase_app = firebase_admin.initialize_app(cred)
+firebase_db = firestore.client()
+
 OPENAI_API_KEY = os.environ.get("OPENAI_KEY")
 COHERE_API_KEY = os.environ.get("COHERE_KEY")
 openai.api_key = OPENAI_API_KEY

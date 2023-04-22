@@ -1,7 +1,8 @@
-from backend import feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
+import datetime
 
 def feedback(question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
@@ -81,3 +82,44 @@ def generate_questions(text: str, num_questions: int = 5):
     return {
         "questions": questions
     }
+
+def start_session(user_id, session_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    new_session = {
+        "created_at": datetime.datetime.now(),
+        "session_id": session_id,
+        "blobs" : [],
+        
+    }
+    if user.exists:
+        user = user.to_dict()
+        if not user.get("in_progress", False):
+            sessions = user['sessions']
+            sessions.append(new_session)
+            user["in_progress"] = True
+    else: 
+        user = {
+            "user_id": user_id,
+            "sessions": [new_session],
+            "in_progress": True,
+        }
+    users_ref.document(user_id).set(user)  
+
+def end_session(user_id, session_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        sessions = user['sessions']
+        for session in sessions:
+            if session['session_id'] == session_id:
+                session['ended_at'] = datetime.datetime.now()
+                user['in_progress'] = False
+                users_ref.document(user_id).set(user)
+                break
+        else:
+            raise Exception("Session not found")
+    else:
+        raise Exception("User not found")
+    
