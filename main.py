@@ -212,6 +212,24 @@ def get_sessions(user_id):
 
 @app.get("/get-session")
 def get_session(user_id, session_id):
+    """Get user session
+
+    Args:
+        user_id (str): user_id
+        session_id (str): session_id
+
+    Returns:
+        session: dict
+            "session_id": <session_id: string>,
+            "session_name": <session_name: string>,
+            "created_at": <start_time: datetime>,
+            "ended_at": <end_time: datetime>,
+            "blob": array of <blob: string>,
+            "quiz": {
+                "questions": array of <question: string>,
+                "num_questions": <num_questions: int>,
+            }
+    """
     session = brain.get_session(user_id, session_id)
     return session
 
