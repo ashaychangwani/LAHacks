@@ -1,7 +1,7 @@
+var saveToken = null;
 document.addEventListener("DOMContentLoaded", function () {
   // Check if user is already logged in
-  var saveToken = null;
-  chrome.identity.getAuthToken({ interactive: false }, function (token) {
+  chrome.identity.getAuthToken({ interactive: true }, function (token) {
     if (token) {
       saveToken = token;
       // Perform API request to validate token and retrieve user data
@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
           document.getElementById("login").style.display = "none";
 
           console.log("Logged in user: ", data);
+          chrome.storage.local.set({ user_id: data.email });
         })
         .catch((error) => {
           console.error(error);
@@ -54,13 +55,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.getElementById("logout").addEventListener("click", function () {
-    console.log(localStorage.getItem("access_token"));
-    chrome.identity.removeCachedAuthToken({ token: saveToken }, function () {
+    chrome.identity.removeCachedAuthToken({ token: saveToken }, function () {});
+    chrome.identity.clearAllCachedAuthTokens(function () {
       // Hide the Start Session button and show the Login button
-      localStorage.removeItem("access_token");
       document.getElementById("start-session").style.display = "none";
       document.getElementById("login").style.display = "inline-block";
       document.getElementById("logout").style.display = "none";
     });
-  });
+  })
 });

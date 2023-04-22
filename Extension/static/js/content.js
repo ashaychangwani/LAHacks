@@ -69,9 +69,35 @@ function createToolbar(show) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.message === "showToolbar") {
-    console.log("in content show toolbar message received");
-    createToolbar(true);
+    fetch('http://localhost:8000/start-session', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "user_id": chrome.storage.local.get("user_id"),
+        "session_id": chrome.storage.local.get("session_id")
+      })
+    }).then(response => {
+
+      console.log("in content show toolbar message received");
+      createToolbar(true);  
+    }).catch(error => {
+    });
   } else if (message.message === "hideToolbar") {
-    createToolbar(false);
+      fetch('http://localhost:8000/end-session', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "user_id": chrome.storage.local.get("user_id"),
+        "session_id": chrome.storage.local.get("session_id")
+      })
+    }).then(response => {
+      createToolbar(false);
+      chrome.storage.local.remove("session_id")
+    }).catch(error => {
+    });
   }
 });

@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ({ sessionActive, sessionUUID: uuid }) => {
         if (!sessionActive) {
           const newUUID = generateUUID();
-          chrome.storage.local.set({ sessionUUID: newUUID });
+          chrome.storage.local.set({ session_id: newUUID });
           chrome.runtime.sendMessage({ command: "showToolbar" });
           startButton.innerText = "End Session";
           sessionUUID.innerText = newUUID;
