@@ -14,6 +14,22 @@ class Feedback(BaseModel):
 
 class RawText(BaseModel):
     text: str
+    source: str | None
+    user_id: str
+    session_id: str
+
+class Context(BaseModel):
+    text: str
+
+class Session(BaseModel):
+    session_id: str
+    user_id: str
+
+class Content(BaseModel):
+    session_id: str
+    user_id: str
+    content: str
+    reference_url: str
 
 app = FastAPI()
 
@@ -39,5 +55,21 @@ def transcribe_audio(file: UploadFile = File(...)):
 
 @app.post("/summarize")
 def summarize_text(rawText: RawText):
-    summary = brain.summarize(rawText.text)
+    summary = brain.summarize(rawText.user_id, rawText.session_id, rawText.text, rawText.source)
     return summary
+
+@app.post("/questions")
+def generate_questions(session: Session, num_questions: int = 5):
+    questions = brain.generate_questions(session.user_id, session.session_id)
+    return questions
+
+@app.get("/start-session")
+def start_session(session: Session):
+    brain.start_session(session.user_id, session.session_id)
+    return {"status": "ok"}
+
+@app.get("/end-session")
+def end_session(session: Session):  
+    brain.end_session(session.user_id, session.session_id)
+    return {"status": "ok"}
+
