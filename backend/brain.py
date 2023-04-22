@@ -180,7 +180,7 @@ def captions_from_youtube(user_id, session_id, id, title):
         start = transcripts[i]['start']
         reference = f"https://youtu.be/{id}?t={int(start)}"
         i += 1
-        while i < len(transcripts) and transcripts[i]['start'] - start < 30:
+        while i < len(transcripts) and transcripts[i]['start'] - start < 120:
             text += " "+transcripts[i]['text']
             i += 1
         blob['type'] = 'paragraph'
