@@ -10,10 +10,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       method: 'GET'
     };
     
-    fetch('http://192.168.65.207:8000/start-session?user_id=1&session_id=1', options)
+    chrome.storage.local.get(['user_id', 'session_id'], function(result) {
+      fetch(`http://192.168.65.207:8000/start-session?user_id=${result.user_id}&session_id=${result.session_id}`, options)
       .then(response => response.json())
       .then(response => console.log("TESTING SOMETHING",response))
       .catch(err => console.error("ERROR WHEN TESTING",err));
+    });
     toolbarShown = true;
     chrome.tabs.query({}, function (tabs) {
       tabs.forEach((tab) => {
@@ -26,10 +28,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       method: 'GET'
     };
     
-    fetch('http://192.168.65.207:8000/end-session?user_id=1&session_id=1', options)
+    chrome.storage.local.get(['user_id', 'session_id'], function(result) {
+      fetch(`http://192.168.65.207:8000/end-session?user_id=${result.user_id}&session_id=${result.session_id}`, options)
       .then(response => response.json())
       .then(response => console.log("TESTING SOMETHING",response))
       .catch(err => console.error("ERROR WHEN TESTING",err));
+    });
     toolbarShown = false;
     chrome.tabs.query({}, function (tabs) {
       tabs.forEach((tab) => {
