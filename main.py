@@ -119,6 +119,29 @@ async def generate_questions(session: Session, num_questions: int = 5):
     asyncio.create_task(brain.generate_questions(session.user_id, session.session_id))
     return {"status": "ok"}
 
+@app.get("/questions")
+def get_questions(user_id, session_id):
+    """Get the questions for a Session
+
+    Args:
+        user_id (str): User ID
+        session_id (str): Session ID
+
+    Returns:
+        dict: 
+            questions (list[dict]): List of questions
+            num_questions (int): Number of questions
+        question:
+            "question_type": <type of question: MultipleAnswer OR MultipleChoice ORShortAnswer>,
+            "question": <question: string>,
+            "answer": <1 or more correct answers: array>,
+            "options": <list of options for MultipleChoice and MultipleAnswer: array>,
+            "context": <50-75 words of context: string>,
+            "references": <list of references of the context>
+    """
+    questions = brain.get_questions(user_id, session_id)
+    return questions
+
 @app.get("/start-session")
 def start_session(user_id, session_id):
     brain.start_session(user_id, session_id)

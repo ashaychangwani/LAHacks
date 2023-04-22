@@ -156,6 +156,20 @@ async def generate_questions(user_id, session_id, num_questions = 5):
         "questions": questions
     }
 
+def get_questions(user_id, session_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if not user.exists:
+        return []
+    user = user.to_dict()
+    for session in user['sessions']:
+        if session['session_id'] == session_id:
+            return {
+                "questions": session['quiz']['questions'],
+                "num_questions": len(session['quiz']['questions'])
+            }
+    return []
+
 def start_session(user_id, session_id):
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
