@@ -83,6 +83,11 @@ def yt_summarize(ytSession: YouTubeSession):
     return {"status": "ok"}
 
 @app.get("/get-sessions")
-def get_session(user_id):
+def get_sessions(user_id):
     sessions = brain.get_sessions(user_id)
     return sessions
+
+@app.get("/get-session")
+def get_session(session: Session):
+    session = brain.get_session(session.user_id, session.session_id)
+    return session

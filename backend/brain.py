@@ -1,4 +1,4 @@
-from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from __init__ import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -241,15 +241,42 @@ def summarize_pdf(user_id, session_id, url):
         response = requests.get(url)
         with open('tmp/pdf.pdf', 'wb') as f:
             f.write(response.content)
-        text = textract.process('tmp/pdf.pdf').decode("utf-8")
-        return summarize(user_id, session_id, text, url)
+        reader = PdfReader('tmp/pdf.pdf')
+        blobs = [{
+            "type": "heading",
+            "content": url,
+            "reference": url
+        }]
+        for page in reader.pages:
+            text = page.extract_text()
+            blobs.extend(summarize(user_id, session_id, text, url, save=False))
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if user.exists:
+            user = user.to_dict()
+            for session in user['sessions']:
+                if session['session_id'] == session_id:
+                    session['blobs'].extend(blobs)
+                    break
+            users_ref.document(user_id).set(user)
+        return {
+            "content": blobs
+        }
     except Exception as e:
         print("EXception occured", e, traceback.format_exc())
 
+def get_session(user_id, session_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                return session
+        else:
+            raise Exception("Session not found")
+    else:
+        raise Exception("User not found")
+
 if __name__ == '__main__':
-    captions_from_youtube(
-	user_id= "1",
-	session_id= "1",
-	url= "https://www.youtube.com/watch?v=jKF5GtBIxpM",
-	title= "The open source alternative to my sponsor - Jellyfin vs Plex"
-)
+    summarize_pdf('1', '1', 'https://www.cms.gov/About-CMS/Agency-Information/OMH/Downloads/MMDT-Quick-Start-Guide.pdf')
