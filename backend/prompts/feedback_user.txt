@@ -1,0 +1,4 @@
+Question: {question}
+Reference answer: {reference_answer}
+Chosen Answer: {chosen_answer}
+Context: {context}
