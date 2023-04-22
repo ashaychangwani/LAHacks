@@ -3,6 +3,7 @@ import json
 import openai
 import traceback
 import datetime
+from youtube_transcript_api import YouTubeTranscriptApi  
 
 def feedback(question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
@@ -31,7 +32,7 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(user_id, session_id, text, source):
+def summarize(user_id, session_id, text, reference):
     try:
         summary = openai.ChatCompletion.create(
             model='gpt-4',
@@ -46,7 +47,7 @@ def summarize(user_id, session_id, text, source):
         summary = summary['choices'][0]['message']['content']
         blobs = json.loads(summary)
         for blob in blobs:
-            blob['source'] = source 
+            blob['reference'] = reference 
         users_ref = firebase_db.collection(u'users')
         user = users_ref.document(user_id).get()
         if user.exists:
@@ -60,7 +61,7 @@ def summarize(user_id, session_id, text, source):
             "summary": summary
         }
     except:
-        return summarize(user_id, session_id, text, source)
+        return summarize(user_id, session_id, text, reference)
 
 def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
@@ -78,11 +79,19 @@ def generate_questions(user_id, session_id, num_questions = 5):
             user_session = session
             for blob in session['blobs']:
                 if isinstance(blob['content'], str):
-                    text.append(blob['content'])
+                    text.append({
+                        "content": blob['content'],
+                        "reference": blob['reference']
+                    })
                 else:
+                    text.append({
+                        #lambda to add all content objects of children
+                        "content": '\n'.join(blob['content']),
+                        "reference": blob['reference']
+                    })
                     text.extend(blob['content'])
             break
-    text = '\n'.join(text)
+    text = json.dumps(text)
     while len(questions) < num_questions:
         try:
             prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
@@ -125,7 +134,6 @@ def start_session(user_id, session_id):
         "created_at": datetime.datetime.now(),
         "session_id": session_id,
         "blobs" : [],
-        
     }
     if user.exists:
         user = user.to_dict()
@@ -157,4 +165,42 @@ def end_session(user_id, session_id):
             raise Exception("Session not found")
     else:
         raise Exception("User not found")
+
+def captions_from_youtube(user_id, session_id, id, title):
+    transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
+    i = 0
+    blobs = [{
+        "type": "heading",
+        "content": title,
+        "reference": f"https://www.youtube.com/watch?v={id}"
+    }]
+    while i < len(transcripts):
+        blob = {}
+        text = transcripts[i]['text']
+        start = transcripts[i]['start']
+        reference = f"https://youtu.be/{id}?t={int(start)}"
+        i += 1
+        while i < len(transcripts) and transcripts[i]['start'] - start < 30:
+            text += " "+transcripts[i]['text']
+            i += 1
+        blob['type'] = 'paragraph'
+        blob['content'] = text
+        blob['reference'] = reference
+        blobs.append(blob)
+
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                session['blobs'].extend(blobs)
+                break
+        users_ref.document(user_id).set(user)
+    return {
+        "content": blobs
+    }
     
+
+if __name__ == '__main__':
+    captions_from_youtube('1','1','J6UgSxeqVlc','Title')
