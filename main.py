@@ -96,3 +96,21 @@ def get_session(user_id, session_id):
 def graph(content: Content):
     graph = brain.generate_graph(content.user_id, content.session_id, content.content, content.reference_url)
     return graph
+
+@app.post("/update-github-repo")
+async def update_github_repo(request: Request) -> dict:
+    """
+    Updates local git repository with the latest changes from the remote repository.
+
+    Args:
+        request (Request): GitHub webhook secret.
+
+    Returns:
+        dict: A dictionary with a "message" key, detailing the result of the operation.
+
+    TODO: Add logging
+    """
+
+    os.system("git pull")
+    return {"message": "Updated successfully"}
+
