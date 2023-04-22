@@ -1,5 +1,7 @@
-from backend import feedback_system, feedback_user, summarize_system
+from backend import feedback_system, feedback_user, summarize_system, questions_system, FormatError
+import json
 import openai
+import traceback
 
 def feedback(question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
@@ -42,4 +44,40 @@ def summarize(text):
     summary = summary['choices'][0]['message']['content'][9:]
     return {
         "summarized_text": summary
+    }
+
+def generate_questions(text: str, num_questions: int = 5):
+    questions = []
+    prev_questions = []
+    response = None
+    while len(questions) < num_questions:
+        try:
+            prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
+            response = openai.ChatCompletion.create(
+                model='gpt-3.5-turbo',
+                messages=[
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": text},
+                ],
+                temperature=0.7,
+                max_tokens=1024,
+                top_p=1,
+                timeout=10,
+            )
+
+            question = response['choices'][0]['message']['content']
+            question_obj = json.loads(question)
+
+            if isinstance(question_obj, dict):
+                questions.append(question_obj)
+                prev_questions.append(question_obj['question'])
+            else:
+                raise FormatError
+        except Exception as e:
+            print(traceback.format_exc())
+            print("An error occurred, printing stack trace", response)
+
+
+    return {
+        "questions": questions
     }

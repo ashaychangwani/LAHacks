@@ -15,6 +15,9 @@ class Feedback(BaseModel):
 class RawText(BaseModel):
     text: str
 
+class Context(BaseModel):
+    text: str
+
 app = FastAPI()
 
 @app.get('/')
@@ -41,3 +44,9 @@ def transcribe_audio(file: UploadFile = File(...)):
 def summarize_text(rawText: RawText):
     summary = brain.summarize(rawText.text)
     return summary
+
+@app.post("/questions")
+def generate_questions(context: Context, num_questions: int = 5):
+    questions = brain.generate_questions(context.text, num_questions)
+    print(questions)
+    return questions

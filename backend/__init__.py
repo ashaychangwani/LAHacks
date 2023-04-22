@@ -15,6 +15,9 @@ openai.api_key = OPENAI_API_KEY
 
 cohere_client = cohere.Client(COHERE_API_KEY)
 
+class FormatError(Exception):
+    pass
+
 with open('backend/prompts/feedback_system.txt', 'r') as f:
     feedback_system = f.read()
 
@@ -23,4 +26,6 @@ with open('backend/prompts/feedback_user.txt', 'r') as f:
 
 with open('backend/prompts/summarize_system.txt', 'r') as f:
     summarize_system = f.read()
-    
+
+with open('backend/prompts/questions_system.txt', 'r') as f:
+    questions_system = f.read()
