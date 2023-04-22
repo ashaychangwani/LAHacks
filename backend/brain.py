@@ -195,8 +195,8 @@ def captions_from_youtube(user_id, session_id, url, title):
     transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
     i = 0
     blobs = [{
-        "type": "heading",
-        "content": title,
+        "type": "video",
+        "content": url,
         "reference": f"https://www.youtube.com/watch?v={id}"
     }]
     while i < len(transcripts):
