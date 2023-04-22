@@ -1,4 +1,4 @@
-from __init__ import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -168,8 +168,6 @@ def end_session(user_id, session_id):
 
 def captions_from_youtube(user_id, session_id, id, title):
     transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
-    #Example transcript {'text': 'pursuant to New York Civil Code a', 'start': 5.359, 'duration': 3.521}
-    #combine into chunks of 30 seconds of transcripts
     i = 0
     blobs = [{
         "type": "heading",
