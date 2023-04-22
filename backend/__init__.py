@@ -6,6 +6,8 @@ import cohere
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+import matplotlib
+matplotlib.use('Agg')
 
 cred = credentials.Certificate("firebase_config.json")
 
@@ -32,3 +34,6 @@ with open('backend/prompts/summarize_system.txt', 'r') as f:
 
 with open('backend/prompts/questions_system.txt', 'r') as f:
     questions_system = f.read()
+
+with open('backend/prompts/graph_system.txt', 'r') as f:
+    graph_system = f.read()

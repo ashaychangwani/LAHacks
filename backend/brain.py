@@ -1,4 +1,4 @@
-from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -7,6 +7,8 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from PyPDF2 import PdfReader
 import requests
 import urllib
+import base64
+import subprocess
 from urllib.parse import urlparse, parse_qs
 
 def extract_video_id(url):
@@ -189,6 +191,53 @@ def end_session(user_id, session_id):
             raise Exception("Session not found")
     else:
         raise Exception("User not found")
+
+def generate_graph(user_id, session_id, text, reference):
+    try:
+        code = openai.ChatCompletion.create(
+            model='gpt-4',
+            messages=[
+                {"role": "system", "content": graph_system},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.7,
+            max_tokens=512,
+            top_p=1,
+            timeout=10,
+        )
+        code = code['choices'][0]['message']['content']
+        with open("tmp/graph.py", "w") as f:
+            f.write(code)
+        
+        subprocess.call("python tmp/graph.py", shell=True)
+
+        # Load the graph image into a byte array
+        img_bytes = None
+        with open("tmp/graph.jpg", "rb") as f:
+            img_bytes = f.read()
+
+        image = base64.b64encode(img_bytes).decode("utf-8")
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if user.exists:
+            user = user.to_dict()
+            for session in user['sessions']:
+                if session['session_id'] == session_id:
+                    session['blobs'].append({
+                        "type": "graph",
+                        "content": image,
+                        "reference": reference
+                    }) 
+                    break
+            users_ref.document(user_id).set(user)
+        return {
+            "image": image
+        }
+    except Exception as e:
+        print(traceback.format_exc())
+        print("An error occurred, printing stack trace", e)
+        return None
+
 
 def captions_from_youtube(user_id, session_id, url, title):
     id = extract_video_id(url)

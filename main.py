@@ -91,3 +91,8 @@ def get_sessions(user_id):
 def get_session(user_id, session_id):
     session = brain.get_session(user_id, session_id)
     return session
+
+@app.post('/graph')
+def graph(content: Content):
+    graph = brain.generate_graph(content.user_id, content.session_id, content.content, content.reference_url)
+    return graph
