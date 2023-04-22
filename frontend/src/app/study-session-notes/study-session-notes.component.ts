@@ -3,7 +3,7 @@ import { UserService } from '../user.service';
 import { AuthService } from '@auth0/auth0-angular';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Note } from '../interfaces';
+import { StudySessionDetail } from '../interfaces';
 
 @Component({
   selector: 'app-study-session-notes',
@@ -12,7 +12,8 @@ import { Note } from '../interfaces';
 })
 export class StudySessionNotesComponent implements OnInit {
   userEmail: string = '';
-  studyNotes!: Observable<Note[]>;
+  studySessionDetail!: Observable<StudySessionDetail>;
+  listArray: string[] = [];
 
   constructor(
     private userService: UserService,
@@ -26,11 +27,20 @@ export class StudySessionNotesComponent implements OnInit {
       const sessionId = routeParams.get('session-id');
       if (user && sessionId) {
         this.userEmail = user.email ? user.email : '';
-        this.studyNotes = this.userService.getStudySessionNotes(
+
+        this.studySessionDetail = this.userService.getStudySessionNotes(
           this.userEmail,
           sessionId
         );
+        
       }
     });
   }
+
+  createArray(array: string | string[]) {
+    if (typeof array !== 'string') {
+      this.listArray = array;
+  }
+}
+
 }

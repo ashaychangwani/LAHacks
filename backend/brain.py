@@ -24,8 +24,7 @@ def feedback(question, reference_answer, chosen_answer, context, references=None
     return {
         "status": status,
         "feedback": feedback
-    }
-    
+    }    
 
 def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)

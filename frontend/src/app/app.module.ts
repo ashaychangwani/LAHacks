@@ -11,7 +11,6 @@ import { StudySessionsComponent } from './study-sessions/study-sessions.componen
 import { StudySessionNotesComponent } from './study-session-notes/study-session-notes.component';
 import { StudySessionQuizComponent } from './study-session-quiz/study-session-quiz.component';
 import { StudySessionStatsComponent } from './study-session-stats/study-session-stats.component';
-import { LoginComponent } from './login/login.component';
 
 import { environment } from 'src/environments/environment';
 
@@ -23,7 +22,6 @@ import { environment } from 'src/environments/environment';
     StudySessionNotesComponent,
     StudySessionQuizComponent,
     StudySessionStatsComponent,
-    LoginComponent,
   ],
   imports: [
     BrowserModule,

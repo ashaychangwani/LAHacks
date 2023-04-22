@@ -1,1 +1,114 @@
-<p>study-session-stats works!</p>
+<div class="px-4 py-5">
+  <div *ngIf="studySessionDetail | async as details">
+    <div class="h6 text-muted">{{ userEmail }}</div>
+    <div class="display-6 fw-bold">
+      Session: {{ details.session_name }} Statistics
+    </div>
+    <div class="h6 text-muted">
+      {{ details.created_at | date : "longDate" }} @
+      {{ details.created_at | date : "shortTime" }}
+    </div>
+    <div class="mt-5">
+      <div class="bg-default">
+        <div class="main-content">
+          <div class="header bg-gradient-primary pb-8 pt-md-8">
+            <div class="container-fluid">
+              <div class="header-body">
+                <div class="row">
+                  <div class="col-xl-3 col-lg-6">
+                    <div class="card card-stats mb-4 mb-xl-0"> 
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col">
+                            <h5
+                              class="card-title text-uppercase text-muted mb-0"
+                            >
+                              Time Spent
+                            </h5>
+                            <span class="h2 font-weight-bold mb-0"
+                              >120 Minutes</span
+                            >
+                          </div>
+                        </div>
+                        <p class="mt-1 mb-0 text-muted text-sm">
+                          <span class="text-success me-2">100 Minutes</span>
+                          <span class="text-nowrap">On Average</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xl-3 col-lg-6">
+                    <div class="card card-stats mb-4 mb-xl-0"> 
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col">
+                            <h5
+                              class="card-title text-uppercase text-muted mb-0"
+                            >
+                              No of Links Visited
+                            </h5>
+                            <span class="h2 font-weight-bold mb-0"
+                              >24 Links</span
+                            >
+                          </div>
+                        </div>
+                        <p class="mt-1 mb-0 text-muted text-sm">
+                          <span class="text-success me-2">15 Links</span>
+                          <span class="text-nowrap">On Average</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xl-3 col-lg-6">
+                    <div class="card card-stats mb-4 mb-xl-0"> 
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col">
+                            <h5
+                              class="card-title text-uppercase text-muted mb-0"
+                            >
+                              Selected Text Saved
+                            </h5>
+                            <span class="h2 font-weight-bold mb-0"
+                              >521 Words</span
+                            >
+                          </div>
+                        </div>
+                        <p class="mt-1 mb-0 text-muted text-sm">
+                          <span class="text-success me-2">300 Words</span>
+                          <span class="text-nowrap">On Average</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xl-3 col-lg-6">
+                    <div class="card card-stats mb-4 mb-xl-0"> 
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col">
+                            <h5
+                              class="card-title text-uppercase text-muted mb-0"
+                            >
+                              No of Videos Watched
+                            </h5>
+                            <span class="h2 font-weight-bold mb-0"
+                              >3 Videos</span
+                            >
+                          </div>
+                        </div>
+                        <p class="mt-1 mb-0 text-muted text-sm">
+                          <span class="text-success me-2">2 Videos</span>
+                          <span class="text-nowrap">On Average</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>                 
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,14 +1,28 @@
-[
-  {
-    "type": "heading",
-    "content": "Heading 1"
-  },
-  {
-    "type": "list",
-    "content": ["item 1", "item 2", "item 3"]
-  },
-  {
-    "type": "paragraph",
-    "content": "lorem ipsum dolor sit amet"
-  }
-]
+{
+  "session_id": "1",
+  "session_name": "Session 1",
+  "created_at": "Tue Nov 05 1985 06:23:20 GMT+0530 (IST)",
+  "ended_at": "Tue Nov 05 1985 07:00:00 GMT+0530 (IST)",
+  "blobs": [
+    {
+      "type": "heading",
+      "content": "Heading 1"
+    },
+    {
+      "type": "list",
+      "content": ["item 1", "item 2", "item 3"]
+    },
+    {
+      "type": "paragraph",
+      "content": "lorem ipsum dolor sit amet"
+    },
+    {
+      "type": "graph",
+      "content": "lorem ipsum dolor sit amet"
+    },
+    {
+      "type": "video",
+      "content": "https://www.youtube.com/watch?v=SXmYUalHyYk"
+    }
+  ]
+}

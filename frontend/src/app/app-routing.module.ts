@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
 import { StudySessionsComponent } from './study-sessions/study-sessions.component';
 import { StudySessionNotesComponent } from './study-session-notes/study-session-notes.component';
 import { StudySessionQuizComponent } from './study-session-quiz/study-session-quiz.component';

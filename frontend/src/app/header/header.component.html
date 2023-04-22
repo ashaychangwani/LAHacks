@@ -3,8 +3,15 @@
     <a class="navbar-brand" href="#">Navbar</a>
     <div class="ms-auto d-flex">
       <ng-container *ngIf="auth.isAuthenticated$ | async">
+          <img
+            [src]="user.picture"
+            width="40"
+            height="40"
+            class="rounded-circle"
+          />
+        <span class="navbar-text ms-3 text-light">{{ user.name }}</span>
         <button
-          class="btn ms-3 btn-danger"
+          class="btn ms-4 btn-danger"
           (click)="
             auth.logout({
               logoutParams: { returnTo: document.location.origin }

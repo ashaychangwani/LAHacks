@@ -1,1 +1,13 @@
-<p>study-session-quiz works!</p>
+<div class="px-4 py-5">
+  <div *ngIf="studySessionDetail | async as details">
+    <div class="h6 text-muted">{{ userEmail }}</div>
+    <div class="display-6 fw-bold">
+      Session: {{ details.session_name }} Quiz
+    </div>
+    <div class="h6 text-muted">
+      {{ details.created_at | date : "longDate" }} @
+      {{ details.created_at | date : "shortTime" }}
+    </div>
+    <div class="mt-5"></div>
+  </div>
+</div>
