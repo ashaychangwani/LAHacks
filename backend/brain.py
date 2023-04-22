@@ -1,4 +1,4 @@
-from __init__ import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import firebase_db, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
