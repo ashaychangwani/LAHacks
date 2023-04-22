@@ -173,8 +173,22 @@ def end_session(user_id, session_id):
     return {"status": "ok"}
 
 @app.post("/yt-summarize")
-def yt_summarize(ytSession: YouTubeSession):
-    summary = brain.captions_from_youtube(ytSession.user_id, ytSession.session_id, ytSession.url, ytSession.title)
+async def yt_summarize(ytSession: YouTubeSession):
+    """Generate Summary for a YouTube video
+
+    Args:
+        ytSession (YouTubeSession): dict
+            user_id (str): The user id
+            session_id (str): The session id
+            url (str): The YouTube URL
+            title (str): The title of the video
+
+    Returns:
+        dict:
+            status (str): The status of the operation. Will be ok
+
+    """
+    asyncio.create_task(brain.captions_from_youtube(ytSession.user_id, ytSession.session_id, ytSession.url, ytSession.title))
     return {"status": "ok"}
 
 @app.get("/get-sessions")
