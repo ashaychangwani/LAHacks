@@ -14,6 +14,9 @@ class Feedback(BaseModel):
 
 class RawText(BaseModel):
     text: str
+    source: str | None
+    user_id: str
+    session_id: str
 
 class Context(BaseModel):
     text: str
@@ -52,7 +55,7 @@ def transcribe_audio(file: UploadFile = File(...)):
 
 @app.post("/summarize")
 def summarize_text(rawText: RawText):
-    summary = brain.summarize(rawText.text)
+    summary = brain.summarize(rawText.user_id, rawText.session_id, rawText.text, rawText.source)
     return summary
 
 @app.post("/questions")

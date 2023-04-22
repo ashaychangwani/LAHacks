@@ -31,21 +31,36 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(text):
-    summary = openai.ChatCompletion.create(
-        model='gpt-4',
-        messages=[
-            {"role": "system", "content": summarize_system},
-            {"role": "user", "content": text},
-        ],
-        temperature=1.2,
-        top_p=1,
-        timeout=10,
-    )
-    summary = summary['choices'][0]['message']['content'][9:]
-    return {
-        "summarized_text": summary
-    }
+def summarize(user_id, session_id, text, source):
+    try:
+        summary = openai.ChatCompletion.create(
+            model='gpt-4',
+            messages=[
+                {"role": "system", "content": summarize_system},
+                {"role": "user", "content": text},
+            ],
+            temperature=1.2,
+            top_p=1,
+            timeout=10,
+        )
+        summary = summary['choices'][0]['message']['content']
+        blobs = json.loads(summary)
+        for blob in blobs:
+            blob['source'] = source 
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if user.exists:
+            user = user.to_dict()
+            for session in user['sessions']:
+                if session['session_id'] == session_id:
+                    session['blobs'].extend(blobs)
+                    break
+            users_ref.document(user_id).set(user)
+        return {
+            "summary": summary
+        }
+    except:
+        return summarize(user_id, session_id, text, source)
 
 def generate_questions(text: str, num_questions: int = 5):
     questions = []
