@@ -59,8 +59,8 @@ def summarize_text(rawText: RawText):
     return summary
 
 @app.post("/questions")
-def generate_questions(context: Context, num_questions: int = 5):
-    questions = brain.generate_questions(context.text, num_questions)
+def generate_questions(session: Session, num_questions: int = 5):
+    questions = brain.generate_questions(session.user_id, session.session_id)
     return questions
 
 @app.get("/start-session")

@@ -62,10 +62,27 @@ def summarize(user_id, session_id, text, source):
     except:
         return summarize(user_id, session_id, text, source)
 
-def generate_questions(text: str, num_questions: int = 5):
+def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
     prev_questions = []
     response = None
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if not user.exists:
+        return None
+    user = user.to_dict()
+    text = []
+    user_session = None
+    for session in user['sessions']:
+        if session['session_id'] == session_id:
+            user_session = session
+            for blob in session['blobs']:
+                if isinstance(blob['content'], str):
+                    text.append(blob['content'])
+                else:
+                    text.extend(blob['content'])
+            break
+    text = '\n'.join(text)
     while len(questions) < num_questions:
         try:
             prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
@@ -92,7 +109,10 @@ def generate_questions(text: str, num_questions: int = 5):
         except Exception as e:
             print(traceback.format_exc())
             print("An error occurred, printing stack trace", response)
-
+    user_session['quiz'] = {}
+    user_session['quiz']['questions'] = questions
+    #set the session in user
+    users_ref.document(user_id).set(user)
 
     return {
         "questions": questions
