@@ -67,6 +67,15 @@ async def feedback(feedback: Feedback):
 
 @app.post("/transcribe")
 def transcribe_audio(file: UploadFile = File(...)):
+    """Transcribe Audio Into Text
+
+    Args:
+        file (Audio File): _description_. Defaults to File(...).
+
+    Returns:
+        dict: 
+            text (str): The transcribed text
+    """
     contents = file.file.read()
     with open(os.path.join('tmp',file.filename), 'wb') as f:
         f.write(contents)
