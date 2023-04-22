@@ -143,18 +143,19 @@ def get_questions(user_id, session_id):
     return questions
 
 @app.get("/start-session")
-def start_session(user_id, session_id):
+def start_session(user_id, session_id, session_name):
     """Start a new Session
 
     Args:
         user_id (str)
         session_id (str)
+        session_name (str)
 
     Returns:
         dict:
             status (str): The status of the operation. Will be ok
     """
-    brain.start_session(user_id, session_id)
+    brain.start_session(user_id, session_id, session_name)
     return {"status": "ok"}
 
 @app.get("/end-session")
@@ -193,6 +194,19 @@ async def yt_summarize(ytSession: YouTubeSession):
 
 @app.get("/get-sessions")
 def get_sessions(user_id):
+    """Get all Sessions for a user
+
+    Args:
+        user_id (str): user_id
+
+    Returns:
+        list[sessions]: List of sessions
+        session:
+            "session_id": <session_id: string>,
+            "session_name": <session_name: string>,
+            "created_at": <start_time: datetime>,
+            "ended_at": <end_time: datetime>,
+    """
     sessions = brain.get_sessions(user_id)
     return sessions
 
@@ -223,3 +237,4 @@ async def update_github_repo(request: Request) -> dict:
     os.system("git pull")
     return {"message": "Updated successfully"}
 
+###PDF

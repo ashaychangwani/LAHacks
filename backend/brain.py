@@ -167,12 +167,13 @@ def get_questions(user_id, session_id):
             }
     return []
 
-def start_session(user_id, session_id):
+def start_session(user_id, session_id, session_name):
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
     new_session = {
         "created_at": datetime.datetime.now(),
         "session_id": session_id,
+        "session_name": session_name,
         "blobs" : [],
     }
     if user.exists:
@@ -296,6 +297,7 @@ def get_sessions(user_id):
         #delete the blobs object from each session
         for session in user['sessions']:
             del session['blobs']
+            del session['quiz']
             
         return user['sessions']
     else:
