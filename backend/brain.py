@@ -58,9 +58,9 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(user_id, session_id, text, reference, save=True):
+async def summarize(user_id, session_id, text, reference, save=True):
     try:
-        summary = openai.ChatCompletion.create(
+        summary = await openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": summarize_system},
@@ -71,6 +71,7 @@ def summarize(user_id, session_id, text, reference, save=True):
             timeout=10,
         )
         summary = summary['choices'][0]['message']['content']
+        print("Generated Summary")
         blobs = json.loads(summary)
         for blob in blobs:
             blob['reference'] = reference 

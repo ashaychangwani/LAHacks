@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Request
 from backend import brain
 from pydantic import BaseModel
 import os
-
+import asyncio
 
 
 class Feedback(BaseModel):
@@ -84,9 +84,22 @@ def transcribe_audio(file: UploadFile = File(...)):
     return transcription
 
 @app.post("/summarize")
-def summarize_text(rawText: RawText):
-    summary = brain.summarize(rawText.user_id, rawText.session_id, rawText.text, rawText.source)
-    return summary
+async def summarize_text(rawText: RawText):
+    """Summarize the given text
+
+    Args:
+        rawText (RawText): dict
+            text (str): The text to summarize
+            source (str): The source URL of the text
+            user_id (str): The user id
+            session_id (str): The session id
+
+    Returns:
+        dict: 
+            status (str): The status of the operation. Will be ok
+    """
+    asyncio.create_task(brain.summarize(rawText.user_id, rawText.session_id, rawText.text, rawText.source))
+    return {"status": "ok"}
 
 @app.post("/questions")
 def generate_questions(session: Session, num_questions: int = 5):
