@@ -41,18 +41,30 @@ function createToolbar(show) {
   addWebPageButton.addEventListener("click", () => {
     // add link
     const url = window.location.href;
+    chrome.runtime.sendMessage({
+      command: "url",
+      url: url,
+    });
     console.log(url);
   });
 
   addSelectionButton.addEventListener("click", () => {
     // code for adding selection
     const selectedText = getSelectedText();
+    chrome.runtime.sendMessage({
+      command: "selectedText",
+      selectedText: selectedText,
+    });
     console.log(selectedText);
   });
 
   addGraphicallyButton.addEventListener("click", () => {
     // code for adding graphically
     const selectedText = getSelectedText();
+    chrome.runtime.sendMessage({
+      command: "makeGraphs",
+      selectedText: selectedText,
+    });
     console.log(selectedText);
   });
 
@@ -62,6 +74,11 @@ function createToolbar(show) {
     console.log(url);
     const cookies = document.cookie;
     console.log(cookies);
+    chrome.runtime.sendMessage({
+      command: "selectedText",
+      url: url,
+      cookies: cookies,
+    });
   });
 
   console.log("toolbar built");
