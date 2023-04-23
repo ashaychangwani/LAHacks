@@ -13,6 +13,7 @@ import {
 })
 export class UserService {
 	backend_url = 'http://128.122.49.69:20440';
+	// backend_url = 'http://192.168.65.207:8000';
 
 	constructor(private http: HttpClient) {}
 
