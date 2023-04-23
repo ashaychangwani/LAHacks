@@ -499,7 +499,7 @@ def line_chart(sessions):
     ax.set_title("Percentage Score Over Past Sessions")
 
     # Save the chart as an image in memory
-    buf = BytesIO()
+    buf = io.BytesIO()
     fig.savefig(buf, format="png")
 
     # Encode the image as a base64 string
@@ -563,14 +563,14 @@ def create_pie_chart_base64(stats):
     labels = 'Text URLs', 'Video URLs', 'PDF URLs'
     sizes = [len(stats['text_urls']), len(stats['video_urls']), len(stats['pdf_urls'])]
     colors = ['#ff9999', '#66b3ff', '#99ff99']
-    explode = (0.1, 0.1, 0.1)  # explode 1st, 2nd and 3rd slice
+    explode = (0.1, 0.2, 0.3)  # explode 1st, 2nd and 3rd slice
 
     # Plot the pie chart
     plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
     plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
     # Save the plot as a bytes array
-    buf = BytesIO()
+    buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
     plt.clf()  # Clear the current figure
