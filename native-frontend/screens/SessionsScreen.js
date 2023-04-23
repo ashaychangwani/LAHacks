@@ -1,14 +1,14 @@
 import 'react-native-gesture-handler';
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button, RefreshControl } from "react-native";
+import { StyleSheet, Text, View, Button, RefreshControl, Pressable } from "react-native";
 import { FlatList } from 'react-native-gesture-handler';
 
 function SessionsScreen({route, navigation}) {
     const { email, baseUrl } = route.params;
     const [sessions, setSessions] = useState([]);
     const [fetching, setFetching] = useState(false);
+
     useEffect(() => {
-        console.log(email)
         if(email != null)
             getSessions();
     }, [email]);
@@ -31,13 +31,18 @@ function SessionsScreen({route, navigation}) {
             setFetching(false);
         }
     }
+    const handlePress = (session_id) => {
+        console.log("Navigating to session",session_id)
+        navigation.navigate('SessionScreen', {email: email, baseUrl: baseUrl, session_id: session_id})
+    }
 
     const renderItem = (item) => {
-        console.log("Rendering item")
         return (
-            <View className="w-full bg-gray-500 h-5">
-                <Text>{item.session_id}</Text>
-                <Text>{item.session_name}</Text>
+            <View className="w-full bg-gray-500 h-5 flex-row">
+                <Pressable onPress={()=>handlePress(item.session_id)}>
+                    <Text>{item.session_id}</Text>
+                    <Text>{item.session_name}</Text>
+                </Pressable>
             </View>
         )
     }
