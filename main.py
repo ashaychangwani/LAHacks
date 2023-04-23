@@ -326,3 +326,8 @@ def global_dashboard(user_id):
     """
     dashboard = brain.global_dashboard(user_id)
     return dashboard
+
+@app.get("/session-dashbard")
+def session_dashboard(user_id, session_id):
+    dashboard = brain.create_session_dashboard(user_id, session_id)
+    return dashboard
