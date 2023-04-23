@@ -39,7 +39,7 @@ function SessionScreen({route, navigation}) {
         if(item.type == 'heading')
             return (
                 <View>
-                    <Text className="font-bold text-xl">{item.content}</Text>
+                    <Text className="font-bold text-xl text-center pb-2 pt-2">{item.content}</Text>
                 </View>
             )
         else if(item.type == 'paragraph')
@@ -119,8 +119,7 @@ function SessionScreen({route, navigation}) {
         <View className="flex flex-1 pt-10">
             { sessionData != null ? (
                 <View className="flex-1 flex-col">
-                    <View className="flex-[6]">
-                        <Text>{sessionData.session_name}</Text>
+                    <View className="flex-[6] p-3">
                         <FlatList
                             data={sessionData.blobs}
                             renderItem={({item}) => renderItem(item)}

@@ -2,6 +2,7 @@ import 'react-native-gesture-handler';
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Button, RefreshControl, Pressable } from "react-native";
 import { FlatList } from 'react-native-gesture-handler';
+import moment from 'moment';
 
 function SessionsScreen({route, navigation}) {
     const { email, baseUrl } = route.params;
@@ -39,10 +40,10 @@ function SessionsScreen({route, navigation}) {
 
     const renderItem = (item) => {
         return (
-            <View className="w-full bg-gray-500 h-5 flex-row">
-                <Pressable onPress={()=>handlePress(item.session_id)}>
-                    <Text>{item.session_id}</Text>
-                    <Text>{item.session_name}</Text>
+            <View className="bg-white h-full p-5 rounded-md ml-10 mr-10">
+                <Pressable onPress={()=>handlePress(item.session_id)} className="flex-row flex-1 w-full">
+                    <Text className="flex-[4] justify-start align-middle text-[24px] pt-[10]">{item.session_name}</Text>
+                    <Text className="flex-1 justify-end align-middle text-center">{moment(item.created_at).format('MMMM Do YYYY')}</Text>
                 </Pressable>
             </View>
         )
@@ -55,13 +56,20 @@ function SessionsScreen({route, navigation}) {
     }
 
     return (
-        <View className="flex flex-1">
-            <FlatList
-                data={sessions}
-                renderItem={({item}) => renderItem(item)}
-                keyExtractor={(item, index) => `item-${index}`}
-                refreshControl={<RefreshControl refreshing={fetching} onRefresh={onRefresh} />}
-            />
+        <View className="flex flex-1 bg-[#00b5b8] pt-20 flex-col">
+            <View className="flex-1">
+                <Text className="w-full justify-center text-center text-[26px]" >
+                    Explore Your Study Sessions
+                </Text>
+            </View>
+            <View className="flex-[4]">
+                <FlatList
+                    data={sessions}
+                    renderItem={({item}) => renderItem(item)}
+                    keyExtractor={(item, index) => `item-${index}`}
+                    refreshControl={<RefreshControl refreshing={fetching} onRefresh={onRefresh} />}
+                />
+            </View>
 
         </View>
     )

@@ -15,17 +15,17 @@ const App = () => {
     <NavigationContainer>
     <Stack.Navigator>
       <Stack.Screen
-        name="HomeScreen"
+        name="C.R.A.P"
         component={HomeScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           }}
       />
       <Stack.Screen
         name="SessionsScreen"
         component={SessionsScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           }}
       />
       <Stack.Screen
