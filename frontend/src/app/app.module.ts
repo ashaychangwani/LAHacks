@@ -4,7 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthModule } from '@auth0/auth0-angular';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { YouTubePlayerModule } from '@angular/youtube-player';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
@@ -14,6 +15,7 @@ import { StudySessionQuizComponent } from './study-session-quiz/study-session-qu
 import { StudySessionStatsComponent } from './study-session-stats/study-session-stats.component';
 
 import { environment } from 'src/environments/environment';
+import { LandingPageComponent } from './landing-page/landing-page.component';
 
 @NgModule({
 	declarations: [
@@ -23,6 +25,7 @@ import { environment } from 'src/environments/environment';
 		StudySessionNotesComponent,
 		StudySessionQuizComponent,
 		StudySessionStatsComponent,
+  LandingPageComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -30,7 +33,7 @@ import { environment } from 'src/environments/environment';
 		NgbModule,
 		HttpClientModule,
 		ReactiveFormsModule,
-		FormsModule,
+        YouTubePlayerModule,
 		AuthModule.forRoot({
 			domain: environment.auth0.domain,
 			clientId: environment.auth0.clientId,

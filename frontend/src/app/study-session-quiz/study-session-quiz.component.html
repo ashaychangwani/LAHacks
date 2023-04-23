@@ -1,15 +1,70 @@
 <div class="px-4 py-5">
-  <div *ngIf="studySessionDetail | async as details">
-    <div class="h6 text-muted">{{ userEmail }}</div>
-    <div class="display-6 fw-bold">
-      Session: {{ details.session_name }} Quiz
-    </div>
-    <div class="h6 text-muted">
-      {{ details.created_at | date : "longDate" }} @
-      {{ details.created_at | date : "shortTime" }}
-    </div>
-    <div class="mt-5">
-      <!-- <div class="container">
+	<div *ngIf="studySessionDetail | async as details">
+		<div class="h6 text-muted">{{ userEmail }}</div>
+		<div class="display-6 fw-bold">
+			Session: {{ details.session_name }} Quiz
+		</div>
+		<div class="h6 text-muted">
+			{{ details.created_at | date : "longDate" }} @
+			{{ details.created_at | date : "shortTime" }}
+		</div>
+		<div class="mt-5">
+			<div *ngIf="quiz | async as quizz">
+				<form [formGroup]="formGroup">
+					<div
+						*ngFor="
+							let question of quizz.questions;
+							let qindex = index
+						"
+					>
+						<div *ngIf="question.question_type == 'MultipleAnswer'">
+							{{ question.question }} MultipleAnswer
+							<div *ngFor="let option of question.options">
+								<label>
+									<input
+										type="checkbox"
+										[value]="option"
+										(change)="onCheckboxChange($event)"
+										[formControlName]="'control_' + qindex"
+									/>
+									<span>{{ option }}</span>
+								</label>
+							</div>
+						</div>
+						<div *ngIf="question.question_type == 'MultipleChoice'">
+							{{ question.question }} MultipleChoice
+							<div *ngFor="let option of question.options">
+								<label>
+									<input
+										type="radio"
+										[value]="option"
+										[formControlName]="'control_' + qindex"
+									/>
+									<span>{{ option }}</span>
+								</label>
+							</div>
+						</div>
+						<div *ngIf="question.question_type == 'ShortAnswer'">
+							{{ question.question }} ShortAnswer
+							<label>
+								<textarea
+									type="text"
+									[formControlName]="'control_' + qindex"
+								></textarea>
+							</label>
+						</div>
+						<div class="feedback">{{ this.feedback[qindex] }}</div>
+						<button
+							class="btn btn-primary"
+							(click)="getFeedback(qindex)"
+						>
+							Check Answer
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- <div class="container">
         <header>
           <h1>Quiz for your study session</h1>
           <p>Test your knowledge! Good luck with the quiz!</p>
@@ -46,6 +101,6 @@
           </div>
         </form>
       </div> -->
-    </div>
-  </div>
+		</div>
+	</div>
 </div>

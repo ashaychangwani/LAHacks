@@ -10,7 +10,7 @@ import { StudySessionDetail, Note } from '../interfaces';
   templateUrl: './study-session-stats.component.html',
   styleUrls: ['./study-session-stats.component.css'],
 })
-export class StudySessionStatsComponent {
+export class StudySessionStatsComponent implements OnInit{
   userEmail: string = '';
   studySessionDetail!: Observable<StudySessionDetail>;
 

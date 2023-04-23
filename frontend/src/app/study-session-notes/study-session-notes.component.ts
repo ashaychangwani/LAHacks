@@ -4,6 +4,7 @@ import { AuthService } from '@auth0/auth0-angular';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { StudySessionDetail } from '../interfaces';
+import { YouTubePlayerModule } from '@angular/youtube-player';
 
 @Component({
   selector: 'app-study-session-notes',
@@ -14,6 +15,7 @@ export class StudySessionNotesComponent implements OnInit {
   userEmail: string = '';
   studySessionDetail!: Observable<StudySessionDetail>;
   listArray: string[] = [];
+  video_url: string = '';
 
   constructor(
     private userService: UserService,
@@ -35,6 +37,16 @@ export class StudySessionNotesComponent implements OnInit {
         
       }
     });
+  }
+
+  getVideoId(url: string | string[]): string {
+    if(typeof url == 'string') {
+        //extract id field from youtube url
+        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+        var match = url.match(regExp);
+        return (match&&match[7].length==11)? match[7] : '';
+    }
+    return ''
   }
 
   createArray(array: string | string[]) {

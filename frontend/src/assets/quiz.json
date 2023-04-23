@@ -1,20 +1,51 @@
-[
-	{
-		"question_type": "Multiple Answer",
-		"question": "Can you tell me which are the food items from the given options?",
-		"answer": ["Apple", "Mango", "Banana"],
-		"options": ["Apple", "Mango", "Banana", "Laptop"]
-	},
-	{
-		"question_type": "Multiple Choice",
-		"question": "Can you tell me which are not the food items from the given options?",
-		"answer": ["Laptop"],
-		"options": ["Apple", "Mango", "Banana", "Laptop"]
-	},
-	{
-		"question_type": "Short Answer",
-		"question": "Can you tell me anout food items?",
-		"answer": ["They are tasty"],
-		"options": []
-	}
-]
+{
+	"questions": [
+		{
+			"references": ["https://google.com"],
+			"question": "What is the main purpose of NativeWind?",
+			"context": "NativeWind harnesses the power of Tailwind CSS to offer a seamless styling experience across all React Native platforms. With a mission to enhance developer UX, component performance, and code maintainability, NativeWind bridges the gap between web-based and native StyleSheet implementations.",
+			"answer": [
+				"Seamless styling experience across all React Native platforms"
+			],
+			"question_type": "MultipleAnswer",
+			"options": [
+				"Seamless styling experience across all React Native platforms",
+				"A new programming language for web development",
+				"A mobile application development framework",
+				"An animation library for web applications"
+			]
+		},
+		{
+			"context": "NativeWind harnesses the power of Tailwind CSS to offer a seamless styling experience across all React Native platforms. With a mission to enhance developer UX, component performance, and code maintainability, NativeWind bridges the gap between web-based and native StyleSheet implementations.",
+			"references": ["https://google.com"],
+			"options": ["Bootstrap", "Tailwind CSS", "Bulma", "Foundation"],
+			"answer": ["Tailwind CSS"],
+			"question_type": "MultipleChoice",
+			"question": "Which CSS framework does NativeWind utilize?"
+		},
+		{
+			"options": [
+				"Developer UX, component performance, and code maintainability",
+				"Cross-platform compatibility",
+				"Animation performance",
+				"Device-specific styling"
+			],
+			"question_type": "MultipleChoice",
+			"answer": [
+				"Developer UX, component performance, and code maintainability"
+			],
+			"references": ["https://google.com"],
+			"question": "What does NativeWind aim to enhance?",
+			"context": "NativeWind harnesses the power of Tailwind CSS to offer a seamless styling experience across all React Native platforms. With a mission to enhance developer UX, component performance, and code maintainability, NativeWind bridges the gap between web-based and native StyleSheet implementations."
+		},
+		{
+			"answer": ["styles"],
+			"context": "NativeWind harnesses the power of Tailwind CSS to offer a seamless styling experience across all React Native platforms. By processing styles during application build and leveraging a minimal runtime, NativeWind readily applies responsive designs based on device properties like orientation and color schemes.",
+			"question_type": "ShortAnswer",
+			"question": "What does NativeWind process during application build to apply responsive designs?",
+			"options": [],
+			"references": ["https://google.com"]
+		}
+	],
+	"num_questions": 4
+}

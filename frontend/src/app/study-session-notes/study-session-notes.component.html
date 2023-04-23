@@ -1,44 +1,41 @@
 <div class="px-4 py-5">
-  <div *ngIf="studySessionDetail | async as details">
-    <div class="h6 text-muted">{{ userEmail }}</div>
-    <div class="display-6 fw-bold">
-      Session: {{ details.session_name }} Notes
-    </div>
-    <div class="h6 text-muted">
-      {{ details.created_at | date : "longDate" }} @
-      {{ details.created_at | date : "shortTime" }}
-    </div>
-    <div class="mt-5">
-      <div *ngFor="let note of details.blobs">
-        <div *ngIf="note.type == 'heading'">
-          <h1>{{ note.content }}</h1>
-        </div>
+	<div *ngIf="studySessionDetail | async as details">
+		<div class="h6 text-muted">{{ userEmail }}</div>
+		<div class="display-6 fw-bold">
+			Session: {{ details.session_name }} Notes
+		</div>
+		<div class="h6 text-muted">
+			{{ details.created_at | date : "longDate" }} @
+			{{ details.created_at | date : "shortTime" }}
+		</div>
+		<div class="mt-5">
+			<div *ngFor="let note of details.blobs">
+				<div *ngIf="note.type == 'heading'">
+					<h1>{{ note.content }}</h1>
+				</div>
 
-        <div *ngIf="note.type == 'paragraph'">
-          <p>{{ note.content }}</p>
-        </div>
+				<div *ngIf="note.type == 'paragraph'">
+					<p>{{ note.content }}</p>
+				</div>
 
-        <div *ngIf="note.type == 'list'">
-          <ul>
-            {{
-              createArray(note.content)
-            }}
-            <li *ngFor="let item of listArray">{{ item }}</li>
-          </ul>
-        </div>
+				<div *ngIf="note.type == 'list'">
+					<ul>
+						{{
+							createArray(note.content)
+						}}
+						<li *ngFor="let item of listArray">{{ item }}</li>
+					</ul>
+				</div>
 
-        <div *ngIf="note.type == 'video'">
-          <div class="ratio ratio-16x9">
-            <iframe
-              [src]="note.content"
-              title="YouTube video"
-              allowfullscreen
-            ></iframe>
-          </div>
-        </div>
+				<div *ngIf="note.type == 'video'">
+					<youtube-player [videoId]="getVideoId(note.content)">
+					</youtube-player>
+				</div>
 
-        <!-- https://www.youtube.com/watch?v=SXmYUalHyYk -->
-      </div>
-    </div>
-  </div>
+				<div *ngIf="note.type == 'graph'"></div>
+
+				<!-- https://www.youtube.com/watch?v=SXmYUalHyYk -->
+			</div>
+		</div>
+	</div>
 </div>
