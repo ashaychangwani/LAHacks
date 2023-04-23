@@ -15,6 +15,7 @@ function SessionsScreen({route, navigation}) {
 
     const getSessions = async () => {
         try {
+            console.log("Getting sessions")
             const response = await fetch(
                 `${baseUrl}get-sessions?user_id=${email}`,
                 {
@@ -58,7 +59,7 @@ function SessionsScreen({route, navigation}) {
             <FlatList
                 data={sessions}
                 renderItem={({item}) => renderItem(item)}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => `item-${index}`}
                 refreshControl={<RefreshControl refreshing={fetching} onRefresh={onRefresh} />}
             />
 

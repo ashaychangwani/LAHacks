@@ -32,7 +32,7 @@ const App = () => {
         name="SessionScreen"
         component={SessionScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           }}
       />
     </Stack.Navigator>

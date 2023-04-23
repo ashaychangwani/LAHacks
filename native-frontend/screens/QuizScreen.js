@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Button, RefreshControl, Pressable } from "react-native";
 import { FlatList } from 'react-native-gesture-handler';
 
-function SessionScreen({route, navigation}) {
+function QuizScreen({route, navigation}) {
     const { email, baseUrl, session_id } = route.params;
     const [sessionData, setSessionData] = useState(null);
     const [fetching, setFetching] = useState(false);
@@ -156,4 +156,4 @@ function SessionScreen({route, navigation}) {
     )
 }
 
-export default SessionScreen;
+export default QuizScreen;

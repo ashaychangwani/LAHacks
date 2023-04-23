@@ -57,7 +57,8 @@ function HomeScreen({ route, navigation }) {
       );
 
       const user = await response.json();
-      setEmail(user.email);
+      if(user.email != null)
+        setEmail(user.email);
       setUserInfo(user);
     } catch (error) {
       // Add your own error handler here
