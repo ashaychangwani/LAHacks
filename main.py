@@ -234,9 +234,30 @@ def get_session(user_id, session_id):
     return session
 
 @app.post('/graph')
-def graph(content: Content):
-    graph = brain.generate_graph(content.user_id, content.session_id, content.content, content.reference_url)
-    return graph
+async def graph(content: Content):
+    """Generate graph from a block a text
+
+    The graph is stored as base 64 encoded bytes of the image. This is how it was created in Python, reverse it for JS:
+        img_bytes = None
+        with open("tmp/graph.jpg", "rb") as f:
+            img_bytes = f.read()
+
+        image = base64.b64encode(img_bytes).decode("utf-8")
+        users_ref = firebase_db.collection(u'users')
+
+    Args:
+        content (Content): dict
+            session_id: str
+            user_id: str
+            content: str | the text to generate the graph from
+            reference_url: str | just a URL
+
+    Returns:
+        dict:
+            status (str): The status of the operation. Will be ok
+    """
+    asyncio.create_task(brain.generate_graph(content.user_id, content.session_id, content.content, content.reference_url))
+    return {"status": "ok"}
 
 @app.post("/update-github-repo")
 async def update_github_repo(request: Request) -> dict:

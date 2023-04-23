@@ -9,6 +9,8 @@ import requests
 import urllib
 import base64
 import subprocess
+import os
+import glob
 from urllib.parse import urlparse, parse_qs
 
 def extract_video_id(url):
@@ -207,9 +209,17 @@ def end_session(user_id, session_id):
     else:
         raise Exception("User not found")
 
-def generate_graph(user_id, session_id, text, reference):
+async def generate_graph(user_id, session_id, text, reference):
     try:
-        code = openai.ChatCompletion.create(
+        image_folder = "tmp/"
+
+        if os.path.exists(os.path.join(image_folder, "graph.py")):
+            os.remove(os.path.join(image_folder, "graph.py"))
+        
+        for file in glob.glob(os.path.join(image_folder, "graph*.jpg")):
+            os.remove(file)
+
+        code = await openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": graph_system},
@@ -221,37 +231,36 @@ def generate_graph(user_id, session_id, text, reference):
             timeout=10,
         )
         code = code['choices'][0]['message']['content']
+        print("Generated code")
         with open("tmp/graph.py", "w") as f:
             f.write(code)
         
         subprocess.call("python tmp/graph.py", shell=True)
-
-        # Load the graph image into a byte array
+        print("code was valid")
         img_bytes = None
-        with open("tmp/graph.jpg", "rb") as f:
-            img_bytes = f.read()
-
-        image = base64.b64encode(img_bytes).decode("utf-8")
         users_ref = firebase_db.collection(u'users')
         user = users_ref.document(user_id).get()
+
         if user.exists:
             user = user.to_dict()
             for session in user['sessions']:
                 if session['session_id'] == session_id:
-                    session['blobs'].append({
-                        "type": "graph",
-                        "content": image,
-                        "reference": reference
-                    }) 
+                    for file in glob.glob(os.path.join(image_folder, "graph*.jpg")):
+                        with open(file, "rb") as f:
+                            img_bytes = f.read()
+                        image = base64.b64encode(img_bytes).decode("utf-8")
+                        session['blobs'].append({
+                            "type": "graph",
+                            "content": image,
+                            "reference": reference
+                        })
                     break
-            users_ref.document(user_id).set(user)
-        return {
-            "image": image
-        }
+
+        users_ref.document(user_id).set(user)
+
     except Exception as e:
         print(traceback.format_exc())
         print("An error occurred, printing stack trace", e)
-        return None
 
 
 async def captions_from_youtube(user_id, session_id, url, title):
