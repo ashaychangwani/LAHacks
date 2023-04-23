@@ -3,6 +3,8 @@ from backend import brain
 from pydantic import BaseModel
 import os
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 class Feedback(BaseModel):
@@ -41,6 +43,13 @@ class Content(BaseModel):
     reference_url: str
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get('/')
 async def status():

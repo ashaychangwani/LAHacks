@@ -124,9 +124,11 @@ async def generate_questions(user_id, session_id, num_questions = 5):
     user = user.to_dict()
     text = []
     user_session = None
-    for session in user['sessions']:
+    user_idx = None
+    for idx,session in enumerate(user['sessions']):
         if session['session_id'] == session_id:
             user_session = session
+            user_idx = idx
             for blob in session['blobs']:
                 if isinstance(blob['content'], str):
                     text.append({
@@ -172,9 +174,10 @@ async def generate_questions(user_id, session_id, num_questions = 5):
                 print("question was valid")
                 questions.append(question_obj)
                 prev_questions.append(question_obj['question'])
-                user_session['quiz']['questions'] = questions
-                user_session['quiz']['num_questions'] = len(questions)
-                users_ref.document(user_id).set(user)
+                users_ref.document(user_id).update({
+                    'sessions.{}.quiz.questions'.format(user_idx) : questions,
+                    'sessions.{}.quiz.num_questions'.format(user_idx) : len(questions)
+                })
             else:
                 raise FormatError
         except Exception as e:
@@ -305,8 +308,10 @@ async def captions_from_youtube(user_id, session_id, url, title):
         return None
     user = user.to_dict()
     blobs = None
-    for session in user['sessions']:
+    userIdx = None
+    for idx,session in enumerate(user['sessions']):
         if session['session_id'] == session_id:
+            userIdx = idx
             blobs = session['blobs']
             if id not in session['stats']['video_urls']:
                 session['stats']['video_urls'].append(id)
@@ -327,7 +332,9 @@ async def captions_from_youtube(user_id, session_id, url, title):
             text += " "+transcripts[i]['text']
             i += 1
         blobs.extend((await summarize(user_id, session_id, text, reference, save=False))['blobs'])
-        users_ref.document(user_id).set(user)
+        users_ref.document(user_id).update({
+            'sessions.{}.blobs'.format(userIdx): blobs
+        })
         print("Extending blobs in YT Summarize")
     return {
         "content": blobs
@@ -360,8 +367,10 @@ async def summarize_pdf(user_id, session_id, url):
             return None
         user = user.to_dict()
         blobs = None
-        for session in user['sessions']:
+        userIdx = None
+        for idx,session in enumerate(user['sessions']):
             if session['session_id'] == session_id:
+                userIdx = idx
                 blobs = session['blobs']
                 if url not in session['stats']['pdf_urls']:
                     session['stats']['pdf_urls'].append(url)
@@ -374,7 +383,9 @@ async def summarize_pdf(user_id, session_id, url):
         for page in reader.pages:
             text = page.extract_text()
             blobs.extend((await summarize(user_id, session_id, text, url, save=False))['blobs'])
-            users_ref.document(user_id).set(user)
+            users_ref.document(user_id).update({
+                'sessions.{}.blobs'.format(userIdx): blobs
+            })
     except Exception as e:
         print("EXception occured", e, traceback.format_exc())
 
