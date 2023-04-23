@@ -555,6 +555,7 @@ def create_word_cloud(user_session):
         # Save the generated image to a buffer
         buf = io.BytesIO()
         plt.savefig(buf, format='png', bbox_inches='tight')
+        plt.clf()
         buf.seek(0)
 
         # Encode the buffer content into a base64 string
@@ -576,6 +577,7 @@ def create_pie_chart_base64(stats):
     # Save the plot as a bytes array
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
+    plt.clf()
     buf.seek(0)
     plt.clf()  # Clear the current figure
     chart_bytes = buf.getvalue()
