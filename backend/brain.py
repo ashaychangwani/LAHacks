@@ -1,4 +1,4 @@
-from backend import firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -9,6 +9,8 @@ import requests
 import urllib
 import base64
 import subprocess
+import os
+import glob
 from urllib.parse import urlparse, parse_qs
 
 def extract_video_id(url):
@@ -49,7 +51,8 @@ def feedback(question, reference_answer, chosen_answer, context, references=None
     feedback = response.split('\n')[1].split(': ')[1]
     return {
         "status": status,
-        "feedback": feedback
+        "feedback": feedback,
+        "references": references
     }
     
 
@@ -57,9 +60,10 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(user_id, session_id, text, reference, save=True):
+async def summarize(user_id, session_id, text, reference, save=True):
     try:
-        summary = openai.ChatCompletion.create(
+        print("Starting to summarize")
+        summary = await openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": summarize_system},
@@ -70,7 +74,9 @@ def summarize(user_id, session_id, text, reference, save=True):
             timeout=10,
         )
         summary = summary['choices'][0]['message']['content']
+        print("Generated Summary")
         blobs = json.loads(summary)
+        print("Summary was valid")
         for blob in blobs:
             blob['reference'] = reference 
         users_ref = firebase_db.collection(u'users')
@@ -87,9 +93,9 @@ def summarize(user_id, session_id, text, reference, save=True):
         }
     except Exception as e:
         print("Exception in summarize",e,traceback.format_exc())
-        return summarize(user_id, session_id, text, reference)
+        return await summarize(user_id, session_id, text, reference)
 
-def generate_questions(user_id, session_id, num_questions = 5):
+async def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
     prev_questions = []
     response = None
@@ -118,10 +124,12 @@ def generate_questions(user_id, session_id, num_questions = 5):
                     text.extend(blob['content'])
             break
     text = json.dumps(text)
+    user_session['quiz'] = {}
+    users_ref.document(user_id).set(user)
     while len(questions) < num_questions:
         try:
             prompt = questions_system.replace('prev_questions', str(prev_questions).replace("'", '"'))
-            response = openai.ChatCompletion.create(
+            response = await openai.ChatCompletion.acreate(
                 model='gpt-4',
                 messages=[
                     {"role": "system", "content": prompt},
@@ -132,33 +140,44 @@ def generate_questions(user_id, session_id, num_questions = 5):
                 top_p=1,
                 timeout=10,
             )
-
+            print("got question")
             question = response['choices'][0]['message']['content']
             question_obj = json.loads(question)
 
             if isinstance(question_obj, dict):
+                print("question was valid")
                 questions.append(question_obj)
                 prev_questions.append(question_obj['question'])
+                user_session['quiz']['questions'] = questions
+                user_session['quiz']['num_questions'] = len(questions)
+                users_ref.document(user_id).set(user)
             else:
                 raise FormatError
         except Exception as e:
             print(traceback.format_exc())
             print("An error occurred, printing stack trace", response)
-    user_session['quiz'] = {}
-    user_session['quiz']['questions'] = questions
-    #set the session in user
-    users_ref.document(user_id).set(user)
 
-    return {
-        "questions": questions
-    }
+def get_questions(user_id, session_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if not user.exists:
+        return []
+    user = user.to_dict()
+    for session in user['sessions']:
+        if session['session_id'] == session_id:
+            return {
+                "questions": session['quiz']['questions'],
+                "num_questions": len(session['quiz']['questions'])
+            }
+    return []
 
-def start_session(user_id, session_id):
+def start_session(user_id, session_id, session_name):
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
     new_session = {
         "created_at": datetime.datetime.now(),
         "session_id": session_id,
+        "session_name": session_name,
         "blobs" : [],
     }
     if user.exists:
@@ -192,9 +211,17 @@ def end_session(user_id, session_id):
     else:
         raise Exception("User not found")
 
-def generate_graph(user_id, session_id, text, reference):
+async def generate_graph(user_id, session_id, text, reference):
     try:
-        code = openai.ChatCompletion.create(
+        image_folder = "tmp/"
+
+        if os.path.exists(os.path.join(image_folder, "graph.py")):
+            os.remove(os.path.join(image_folder, "graph.py"))
+        
+        for file in glob.glob(os.path.join(image_folder, "graph*.jpg")):
+            os.remove(file)
+
+        code = await openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": graph_system},
@@ -206,48 +233,57 @@ def generate_graph(user_id, session_id, text, reference):
             timeout=10,
         )
         code = code['choices'][0]['message']['content']
+        print("Generated code")
         with open("tmp/graph.py", "w") as f:
             f.write(code)
         
         subprocess.call("python tmp/graph.py", shell=True)
-
-        # Load the graph image into a byte array
+        print("code was valid")
         img_bytes = None
-        with open("tmp/graph.jpg", "rb") as f:
-            img_bytes = f.read()
-
-        image = base64.b64encode(img_bytes).decode("utf-8")
         users_ref = firebase_db.collection(u'users')
         user = users_ref.document(user_id).get()
+
         if user.exists:
             user = user.to_dict()
             for session in user['sessions']:
                 if session['session_id'] == session_id:
-                    session['blobs'].append({
-                        "type": "graph",
-                        "content": image,
-                        "reference": reference
-                    }) 
+                    for file in glob.glob(os.path.join(image_folder, "graph*.jpg")):
+                        with open(file, "rb") as f:
+                            img_bytes = f.read()
+                        image = base64.b64encode(img_bytes).decode("utf-8")
+                        session['blobs'].append({
+                            "type": "graph",
+                            "content": image,
+                            "reference": reference
+                        })
                     break
-            users_ref.document(user_id).set(user)
-        return {
-            "image": image
-        }
+
+        users_ref.document(user_id).set(user)
+
     except Exception as e:
         print(traceback.format_exc())
         print("An error occurred, printing stack trace", e)
-        return None
 
 
-def captions_from_youtube(user_id, session_id, url, title):
+async def captions_from_youtube(user_id, session_id, url, title):
     id = extract_video_id(url)
     transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
     i = 0
-    blobs = [{
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if not user.exists:
+        return None
+    user = user.to_dict()
+    blobs = None
+    for session in user['sessions']:
+        if session['session_id'] == session_id:
+            blobs = session['blobs']
+    blobs.append({
         "type": "video",
         "content": url,
         "reference": f"https://www.youtube.com/watch?v={id}"
-    }]
+    })
+
     while i < len(transcripts):
         blob = {}
         text = transcripts[i]['text']
@@ -257,17 +293,9 @@ def captions_from_youtube(user_id, session_id, url, title):
         while i < len(transcripts) and transcripts[i]['start'] - start < YOUTUBE_BLOB_SIZE:
             text += " "+transcripts[i]['text']
             i += 1
-        blobs.extend(summarize(user_id, session_id, text, reference, save=False)['blobs'])
-
-    users_ref = firebase_db.collection(u'users')
-    user = users_ref.document(user_id).get()
-    if user.exists:
-        user = user.to_dict()
-        for session in user['sessions']:
-            if session['session_id'] == session_id:
-                session['blobs'].extend(blobs)
-                break
+        blobs.extend((await summarize(user_id, session_id, text, reference, save=False))['blobs'])
         users_ref.document(user_id).set(user)
+        print("Extending blobs in YT Summarize")
     return {
         "content": blobs
     }
@@ -280,37 +308,37 @@ def get_sessions(user_id):
         #delete the blobs object from each session
         for session in user['sessions']:
             del session['blobs']
+            del session['quiz']
             
         return user['sessions']
     else:
         return []
 
-def summarize_pdf(user_id, session_id, url):
+async def summarize_pdf(user_id, session_id, url):
     try:
         response = requests.get(url)
         with open('tmp/pdf.pdf', 'wb') as f:
             f.write(response.content)
         reader = PdfReader('tmp/pdf.pdf')
-        blobs = [{
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if not user.exists:
+            return None
+        user = user.to_dict()
+        blobs = None
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                blobs = session['blobs']
+                break
+        blobs.append({
             "type": "heading",
             "content": url,
             "reference": url
-        }]
+        })
         for page in reader.pages:
             text = page.extract_text()
-            blobs.extend(summarize(user_id, session_id, text, url, save=False))
-        users_ref = firebase_db.collection(u'users')
-        user = users_ref.document(user_id).get()
-        if user.exists:
-            user = user.to_dict()
-            for session in user['sessions']:
-                if session['session_id'] == session_id:
-                    session['blobs'].extend(blobs)
-                    break
+            blobs.extend((await summarize(user_id, session_id, text, url, save=False))['blobs'])
             users_ref.document(user_id).set(user)
-        return {
-            "content": blobs
-        }
     except Exception as e:
         print("EXception occured", e, traceback.format_exc())
 
