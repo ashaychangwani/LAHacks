@@ -296,3 +296,17 @@ async def pdf_summarize(pdfSession: PDFSession):
     """
     asyncio.create_task(brain.summarize_pdf(pdfSession.user_id, pdfSession.session_id, pdfSession.url))
     return {"status": "ok"}
+
+@app.get("/global-dashboard")
+def global_dashboard(user_id):
+    """Get dashboard data for a user
+
+    Args:
+        user_id (str): user_id
+
+    Returns:
+        dict:
+            
+    """
+    dashboard = brain.global_dashboard(user_id)
+    return dashboard

@@ -11,6 +11,10 @@ import base64
 import subprocess
 import os
 import glob
+import io
+import matplotlib.pyplot as plt
+matplotlib.use('Agg')
+
 from urllib.parse import urlparse, parse_qs
 
 def extract_video_id(url):
@@ -356,5 +360,44 @@ def get_session(user_id, session_id):
     else:
         raise Exception("User not found")
 
-if __name__ == '__main__':
-    summarize_pdf('1', '1', 'https://www.cms.gov/About-CMS/Agency-Information/OMH/Downloads/MMDT-Quick-Start-Guide.pdf')
+def generate_bar_graph(latest_sessions, average_time):
+    y = [(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in latest_sessions]
+    x_labels = [f"{session['name']} ({session['created_at'].strftime('%Y-%m-%d')})" for session in latest_sessions]
+    x = range(len(latest_sessions))
+
+    # Create bar graph
+    plt.bar(x, y)
+    plt.ylabel('Time (minutes)')
+    plt.xticks(x, x_labels, rotation=45)
+
+    plt.title('Time spent by the user in most recent 7 sessions')
+    plt.axhline(average_time, color='lightcoral', linestyle='--', label='Average time across all sessions')
+    plt.legend()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    # Save the bytes of the image to the variable temp
+    temp = buf.getvalue()
+
+    # Generate the base64 representation of the image
+    image = base64.b64encode(temp).decode("utf-8")
+
+    return image
+
+
+def global_dashboard(user_id):
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        dashboard = {}
+        sessions = user['sessions']
+        #get the latest 7 sessions sorted by created_at attribute
+        latest_sessions = sorted(sessions, key=lambda x: x['created_at'], reverse=True)[:7]
+        average_time = sum([(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in sessions]) / len(sessions)
+        dashboard['bar_graph'] = generate_bar_graph(latest_sessions, average_time)
+        return user['dashboard']
+    else:
+        raise Exception("User not found")
