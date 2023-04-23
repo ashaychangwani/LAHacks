@@ -14,6 +14,7 @@ import glob
 import io
 import matplotlib.pyplot as plt
 import matplotlib
+import hashlib
 matplotlib.use('Agg')
 
 from urllib.parse import urlparse, parse_qs
@@ -76,10 +77,10 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-def summarize(user_id, session_id, text, reference, save=True):
+async def summarize(user_id, session_id, text, reference, save=True):
     try:
         print("Starting to summarize")
-        summary = openai.ChatCompletion.create(
+        summary = openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": summarize_system},
@@ -111,7 +112,7 @@ def summarize(user_id, session_id, text, reference, save=True):
         }
     except Exception as e:
         print("Exception in summarize",e,traceback.format_exc())
-        return summarize(user_id, session_id, text, reference)
+        return await summarize(user_id, session_id, text, reference)
 
 async def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
@@ -283,10 +284,12 @@ async def generate_graph(user_id, session_id, text, reference):
                     for file in glob.glob(os.path.join(image_folder, "graph*.jpg")):
                         with open(file, "rb") as f:
                             img_bytes = f.read()
-                        image = base64.b64encode(img_bytes).decode("utf-8")
+                        img_hash = hashlib.sha256(img_bytes).hexdigest()
+                        with open(os.path.join("tmp", img_hash + ".jpg"), "wb") as f:
+                            f.write(img_bytes)
                         session['blobs'].append({
                             "type": "graph",
-                            "content": image,
+                            "content": img_hash,
                             "reference": reference
                         })
                     break
@@ -298,7 +301,7 @@ async def generate_graph(user_id, session_id, text, reference):
         print("An error occurred, printing stack trace", e)
 
 
-def captions_from_youtube(user_id, session_id, url, title):
+async def captions_from_youtube(user_id, session_id, url, title):
     id = extract_video_id(url)
     transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
     i = 0
@@ -331,7 +334,7 @@ def captions_from_youtube(user_id, session_id, url, title):
         while i < len(transcripts) and transcripts[i]['start'] - start < YOUTUBE_BLOB_SIZE:
             text += " "+transcripts[i]['text']
             i += 1
-        blobs.extend((summarize(user_id, session_id, text, reference, save=False))['blobs'])
+        blobs.extend((await summarize(user_id, session_id, text, reference, save=False))['blobs'])
         user = users_ref.document(user_id).get().to_dict()
         user['sessions'][userIdx]['blobs'] = blobs
         users_ref.document(user_id).set(user)
@@ -396,7 +399,14 @@ def get_session(user_id, session_id):
         user = user.to_dict()
         for session in user['sessions']:
             if session['session_id'] == session_id:
-                return session
+                user_session = session
+                for blob in user_session['blobs']:
+                    if blob['type'] == 'graph':
+                        with open(file, "rb") as f:
+                            img_bytes = f.read()
+                        with open(os.path.join("tmp", blob['content'] + ".jpg"), "rb") as f:
+                            blob['content'] = f.read()
+                return user_session
         else:
             raise Exception("Session not found")
     else:
