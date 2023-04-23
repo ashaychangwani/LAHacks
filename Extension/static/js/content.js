@@ -7,7 +7,7 @@ function getSelectedText() {
 }
 
 function createToolbar(show) {
-  let toolbar = document.getElementById("my-toolbar");
+  let toolbar = document.getElementById("floating-toolbar");
   if (!show) {
     if (toolbar) toolbar.remove();
     return;
@@ -15,16 +15,48 @@ function createToolbar(show) {
 
   if (!toolbar) {
     toolbar = document.createElement("div");
-    toolbar.id = "my-toolbar";
-    toolbar.classList.add("fab");
-    toolbar.innerHTML = `<button class="main">
-    </button>
-    <ul>
-    <li><label for="add-web-page"> Add web page </label> <button id="add-web-page">📃</button></li>
-    <li><label for="add-graphically"> Add graphically </label> <button id="add-graphically">📊</button></li>
-    <li><label for="add-video"> Add video </label> <button id="add-video">📹</button></li>
-    <li><label for="add-selection"> Add selection </label> <button id="add-selection">📋</button></li>
-    </ul>
+    toolbar.id = "floating-toolbar";
+    toolbar.innerHTML = `<div id="button-container">
+      <button class="my-round-btn" id="expand-btn">⏚</button>
+      <div id="buttons" class="hidden">
+        <button class="tooltip my-round-btn" id="add-web-page">📃<span class="tooltiptext">Add Web Page</span></button>
+        <button class="tooltip my-round-btn" id="add-graphically">📊<span class="tooltiptext">Generate Graph</span></button>
+        <button class="tooltip my-round-btn" id="add-video">📹<span class="tooltiptext">Add Video</span></button>
+        <button class="tooltip my-round-btn" id="add-selection">📋<span class="tooltiptext">Add Selected Text</span></button>
+      </div>
+    </div>
+<script>
+  const buttons = document.getElementById('buttons');
+  const expandBtn = document.getElementById('expand-btn');
+  let timerId;
+
+  function hideButtons() {
+    buttons.classList.remove('visible');
+  }
+
+  function showButtons() {
+    buttons.classList.add('visible');
+  }
+
+  expandBtn.addEventListener('mouseenter', function () {
+    clearTimeout(timerId);
+    showButtons();
+  });
+
+  buttons.addEventListener('mouseleave', function () {
+    timerId = setTimeout(hideButtons, 500);
+  });
+
+  buttons.addEventListener('mouseenter', function () {
+    clearTimeout(timerId);
+  });
+
+  expandBtn.addEventListener('mouseleave', function () {
+    timerId = setTimeout(hideButtons, 500);
+  });
+
+
+</script>
   `;
     document.body.appendChild(toolbar);
   }
@@ -38,27 +70,47 @@ function createToolbar(show) {
   addWebPageButton.addEventListener("click", () => {
     // add link
     const url = window.location.href;
-    console.log(url);
+    chrome.runtime.sendMessage(
+      { command: "url", url: url, text: document.body.innerText },
+      function (response) {
+        console.log("Full Web Page Sent");
+      }
+    );
   });
 
   addSelectionButton.addEventListener("click", () => {
     // code for adding selection
     const selectedText = getSelectedText();
-    console.log(selectedText);
+    const url = window.location.href;
+    chrome.runtime.sendMessage(
+      { command: "selectedText", url: url, text: selectedText },
+      function (response) {
+        console.log("Selected Text was Sent");
+      }
+    );
   });
 
   addGraphicallyButton.addEventListener("click", () => {
     // code for adding graphically
     const selectedText = getSelectedText();
-    console.log(selectedText);
+    const url = window.location.href;
+    chrome.runtime.sendMessage(
+      { command: "generateGraph", url: url, text: selectedText },
+      function (response) {
+        console.log("Graph Text was Sent");
+      }
+    );
   });
 
   addVideoButton.addEventListener("click", () => {
-    // code for adding video
     const url = window.location.href;
-    console.log(url);
-    const cookies = document.cookie;
-    console.log(cookies);
+    // const cookies = document.cookie;
+    chrome.runtime.sendMessage(
+      { command: "ytsummarize", url: url, title: "PLACEHOLDER" },
+      function (response) {
+        console.log("Video link was Sent");
+      }
+    );
   });
 
   console.log("toolbar built");
@@ -69,15 +121,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     createToolbar(true);
   } else if (message.message === "hideToolbar") {
     createToolbar(false);
+    chrome.storage.local.remove("session_id");
   }
 });
-
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   if (message.message === "showToolbar") {
-//     console.log("in content show toolbar message received");
-//     createToolbar(true);
-//   } else if (message.message === "hideToolbar") {
-//     createToolbar(false);
-//     chrome.storage.local.remove("session_id");
-//   }
-// });
