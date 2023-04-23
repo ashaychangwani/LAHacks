@@ -8,6 +8,44 @@
       {{ details.created_at | date : "longDate" }} @
       {{ details.created_at | date : "shortTime" }}
     </div>
-    <div class="mt-5"></div>
+    <div class="mt-5">
+      <!-- <div class="container">
+        <header>
+          <h1>Quiz for your study session</h1>
+          <p>Test your knowledge! Good luck with the quiz!</p>
+        </header>
+
+        <div class="row">
+          <h1>MCQ Quiz</h1>
+          <p>Select all correct answers.</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submitForm()" novalidate>
+          <div class="row">
+            <div class="quiz-yn-group col-md-6">
+              <div class="quiz-question">{{ question_data.question }}</div>
+
+              <div class="checkbox" *ngFor="let number of [0, 1, 2, 3]">
+                <input
+                  type="checkbox"
+                  [value]="question_data.options[number]"
+                  (change)="onCheckboxChange($event)"
+                />{{ question_data.options[number] }}
+              </div>
+            </div>
+
+            <div
+              class="error quiz-answer text-center"
+              *ngIf="this.form.controls['checkArray'].errors?.['required']"
+            >
+              Checkbox is required, select atleast one value.
+            </div>
+            <input type="submit" value="Submit" />
+
+            <div>{{ explanation }}</div>
+          </div>
+        </form>
+      </div> -->
+    </div>
   </div>
 </div>

@@ -1,0 +1,20 @@
+[
+	{
+		"question_type": "Multiple Answer",
+		"question": "Can you tell me which are the food items from the given options?",
+		"answer": ["Apple", "Mango", "Banana"],
+		"options": ["Apple", "Mango", "Banana", "Laptop"]
+	},
+	{
+		"question_type": "Multiple Choice",
+		"question": "Can you tell me which are not the food items from the given options?",
+		"answer": ["Laptop"],
+		"options": ["Apple", "Mango", "Banana", "Laptop"]
+	},
+	{
+		"question_type": "Short Answer",
+		"question": "Can you tell me anout food items?",
+		"answer": ["They are tasty"],
+		"options": []
+	}
+]
