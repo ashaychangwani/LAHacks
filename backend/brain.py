@@ -574,26 +574,29 @@ def create_word_cloud(user_session):
 
 
 def create_pie_chart_base64(stats):
-    labels = 'Text URLs', 'Video URLs', 'PDF URLs'
-    sizes = [len(stats['text_urls']), len(stats['video_urls']), len(stats['pdf_urls'])]
-    colors = ['#ff9999', '#66b3ff', '#99ff99']
-    explode = (0.1, 0.2, 0.3)  # explode 1st, 2nd and 3rd slice
+    try:
+        labels = 'Text URLs', 'Video URLs', 'PDF URLs'
+        sizes = [len(stats['text_urls']), len(stats['video_urls']), len(stats['pdf_urls'])]
+        colors = ['#ff9999', '#66b3ff', '#99ff99']
+        explode = (0.1, 0.2, 0.3)  # explode 1st, 2nd and 3rd slice
 
-    # Plot the pie chart
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
-    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    # Save the plot as a bytes array
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    plt.clf()
-    buf.seek(0)
-    plt.clf()  # Clear the current figure
-    chart_bytes = buf.getvalue()
+        # Plot the pie chart
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        # Save the plot as a bytes array
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.clf()
+        buf.seek(0)
+        plt.clf()  # Clear the current figure
+        chart_bytes = buf.getvalue()
 
-    # Encode the bytes array as base64
-    chart_base64 = base64.b64encode(chart_bytes).decode('utf-8')
-    buf.close()
-    return chart_base64
+        # Encode the bytes array as base64
+        chart_base64 = base64.b64encode(chart_bytes).decode('utf-8')
+        buf.close()
+        return chart_base64
+    except:
+        pass
 
 def create_session_dashboard(user_id, session_id):
     try:
