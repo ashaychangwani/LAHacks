@@ -596,21 +596,24 @@ def create_pie_chart_base64(stats):
     return chart_base64
 
 def create_session_dashboard(user_id, session_id):
-    dashboard = {}
-    users_ref = firebase_db.collection(u'users')
-    user = users_ref.document(user_id).get()
-    if user.exists:
-        user = user.to_dict()
-        for session in user['sessions']:
-            if session['session_id'] == session_id:
-                dashboard['wordcloud'] = create_word_cloud(session)
-                dashboard['piechart'] = create_pie_chart_base64(session['stats'])
-                dashboard['score'] = (session['quiz'].get('stats', {}).get('correct', 0) / session['quiz'].get('stats', {}).get('total', 1)) * 100
+    try:
+        dashboard = {}
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if user.exists:
+            user = user.to_dict()
+            for session in user['sessions']:
+                if session['session_id'] == session_id:
+                    dashboard['wordcloud'] = create_word_cloud(session)
+                    dashboard['piechart'] = create_pie_chart_base64(session['stats'])
+                    dashboard['score'] = (session['quiz'].get('stats', {}).get('correct', 0) / session['quiz'].get('stats', {}).get('total', 1)) * 100
 
-                return dashboard
-        return Exception("Session not found")
-    else:
-        raise Exception("User not found")
+                    return dashboard
+            return Exception("Session not found")
+        else:
+            raise Exception("User not found")
+    except: 
+        pass
 
 if __name__ == '__main__':
     captions_from_youtube('ysolanki@usc.edu','a3aaa42a-0a9b-49dc-8478-60867a72155e','https://www.youtube.com/watch?v=7TavVZMewpY','Test Title')
