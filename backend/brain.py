@@ -543,6 +543,7 @@ def create_word_cloud(user_session):
                 text += " " + process_string(blob['content'])
             else:
                 text += " "+ process_string(" ".join(blob['content']))
+        print(text)
         wordcloud = WordCloud(width = 800, height = 800,
             background_color ='white',
             stopwords = stopwords,
@@ -557,7 +558,11 @@ def create_word_cloud(user_session):
         buf.seek(0)
 
         # Encode the buffer content into a base64 string
-        return base64.b64encode(buf.getvalue())
+        val = base64.b64encode(buf.getvalue())
+        buf.close()
+        return val
+
+
 
 def create_pie_chart_base64(stats):
     labels = 'Text URLs', 'Video URLs', 'PDF URLs'
@@ -568,7 +573,6 @@ def create_pie_chart_base64(stats):
     # Plot the pie chart
     plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
     plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
     # Save the plot as a bytes array
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
@@ -578,7 +582,7 @@ def create_pie_chart_base64(stats):
 
     # Encode the bytes array as base64
     chart_base64 = base64.b64encode(chart_bytes).decode('utf-8')
-
+    buf.close()
     return chart_base64
 
 def create_session_dashboard(user_id, session_id):
