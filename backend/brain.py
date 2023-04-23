@@ -80,7 +80,7 @@ def transcribe(audio_bytes):
 async def summarize(user_id, session_id, text, reference, save=True):
     try:
         print("Starting to summarize")
-        summary = openai.ChatCompletion.acreate(
+        summary = await openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": summarize_system},
