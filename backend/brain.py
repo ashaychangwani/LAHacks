@@ -562,6 +562,7 @@ def create_word_cloud(user_session):
 def create_pie_chart_base64(stats):
     labels = 'Text URLs', 'Video URLs', 'PDF URLs'
     sizes = [stats['text_urls'], stats['video_urls'], stats['pdf_urls']]
+    console.log(sizes, stats)
     colors = ['#ff9999', '#66b3ff', '#99ff99']
     explode = (0.1, 0.1, 0.1)  # explode 1st, 2nd and 3rd slice
 
