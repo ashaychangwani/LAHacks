@@ -15,7 +15,7 @@ import {
 @Component({
 	selector: 'app-study-session-quiz',
 	templateUrl: './study-session-quiz.component.html',
-	styleUrls: ['./study-session-quiz.component.css'],
+	styleUrls: ['./study-session-quiz.component.scss'],
 })
 export class StudySessionQuizComponent implements OnInit {
 	userEmail: string = '';

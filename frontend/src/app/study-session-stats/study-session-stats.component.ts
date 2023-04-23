@@ -8,7 +8,7 @@ import { StudySessionDetail, Note } from '../interfaces';
 @Component({
   selector: 'app-study-session-stats',
   templateUrl: './study-session-stats.component.html',
-  styleUrls: ['./study-session-stats.component.css'],
+  styleUrls: ['./study-session-stats.component.scss'],
 })
 export class StudySessionStatsComponent implements OnInit{
   userEmail: string = '';

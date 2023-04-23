@@ -7,7 +7,7 @@ import { AuthService } from '@auth0/auth0-angular';
 @Component({
   selector: 'app-study-sessions',
   templateUrl: './study-sessions.component.html',
-  styleUrls: ['./study-sessions.component.css'],
+  styleUrls: ['./study-sessions.component.scss'],
 })
 export class StudySessionsComponent implements OnInit {
   studySessions!: Observable<StudySession[]>;

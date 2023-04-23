@@ -9,7 +9,7 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
 @Component({
   selector: 'app-study-session-notes',
   templateUrl: './study-session-notes.component.html',
-  styleUrls: ['./study-session-notes.component.css'],
+  styleUrls: ['./study-session-notes.component.scss'],
 })
 export class StudySessionNotesComponent implements OnInit {
   userEmail: string = '';

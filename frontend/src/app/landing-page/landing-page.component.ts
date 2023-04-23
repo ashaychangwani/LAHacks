@@ -6,7 +6,7 @@ declare let particlesJS: any;
 @Component({
 	selector: 'app-landing-page',
 	templateUrl: './landing-page.component.html',
-	styleUrls: ['./landing-page.component.css'],
+	styleUrls: ['./landing-page.component.scss'],
 })
 export class LandingPageComponent implements OnInit {
 	public ngOnInit(): void {
