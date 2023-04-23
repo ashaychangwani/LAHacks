@@ -1,4 +1,4 @@
-from backend import LLM_MODEL, cohere_client, YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import stopwords, LLM_MODEL, cohere_client, YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -15,6 +15,7 @@ import io
 import matplotlib.pyplot as plt
 import matplotlib
 import hashlib
+from wordcloud import WordCloud
 matplotlib.use('Agg')
 
 from urllib.parse import urlparse, parse_qs
@@ -525,6 +526,75 @@ def global_dashboard(user_id):
         dashboard['pie_chart'] = generate_pie_chart(latest_sessions)
         dashboard['']
         return user['dashboard']
+    else:
+        raise Exception("User not found")
+
+def process_string(val):
+    tokens = val.split()
+     
+    for i in range(len(tokens)):
+        tokens[i] = tokens[i].lower()
+    return " ".join(tokens)
+     
+def create_word_cloud(user_session):
+        text = ""
+        for blob in user_session:
+            if blob['type'] == 'paragraph' or blob['type'] == 'heading':
+                text += " " + process_string(blob['content'])
+            else:
+                text += " "+ process_string(" ".join(blob['content']))
+        wordcloud = WordCloud(width = 800, height = 800,
+            background_color ='white',
+            stopwords = stopwords,
+            min_font_size = 10).generate(text)
+        plt.imshow(wordcloud)
+        plt.axis("off")
+        plt.tight_layout(pad = 0)
+
+        # Save the generated image to a buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight')
+        buf.seek(0)
+
+        # Encode the buffer content into a base64 string
+        return base64.b64encode(buf.getvalue())
+
+def create_pie_chart_base64(stats):
+    labels = 'Text URLs', 'Video URLs', 'PDF URLs'
+    sizes = [stats['text_urls'], stats['video_urls'], stats['pdf_urls']]
+    colors = ['#ff9999', '#66b3ff', '#99ff99']
+    explode = (0.1, 0.1, 0.1)  # explode 1st, 2nd and 3rd slice
+
+    # Plot the pie chart
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    # Save the plot as a bytes array
+    buf = BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    plt.clf()  # Clear the current figure
+    chart_bytes = buf.getvalue()
+
+    # Encode the bytes array as base64
+    chart_base64 = base64.b64encode(chart_bytes).decode('utf-8')
+
+    return chart_base64
+
+def create_session_dashboard(user_id, session_id):
+    dashboard = {}
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                dashboard['wordcloud'] = create_word_cloud(session)
+                dashboard['piechart'] = create_pie_chart_base64(session['stats'])
+                dashboard['score'] = (session['quiz'].get('stats', {}).get('correct', 0) / session['quiz'].get('stats', {}).get('total', 1)) * 100
+
+                return dashboard
+        return Exception("Session not found")
     else:
         raise Exception("User not found")
 
