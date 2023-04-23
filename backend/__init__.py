@@ -7,6 +7,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 import matplotlib
+from wordcloud import STOPWORDS
+
+stopwords = set(STOPWORDS)
 matplotlib.use('Agg')
 
 cred = credentials.Certificate("firebase_config.json")
