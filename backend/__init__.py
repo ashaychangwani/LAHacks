@@ -20,7 +20,7 @@ openai.api_key = OPENAI_API_KEY
 
 cohere_client = cohere.Client(COHERE_API_KEY)
 YOUTUBE_BLOB_SIZE = 150
-
+LLM_MODEL = os.environ.get("LLM_MODEL", "COHERE")
 class FormatError(Exception):
     pass
 

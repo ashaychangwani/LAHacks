@@ -1,4 +1,4 @@
-from backend import YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from backend import LLM_MODEL, cohere_client, YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -41,17 +41,33 @@ def extract_video_id(url):
 def feedback(user_id, session_id, question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
     user_query = feedback_user.format(question=question, reference_answer=reference_answer, chosen_answer=chosen_answer, context=context)
-    response = openai.ChatCompletion.create(
-        model='gpt-4',
-        messages=[
-            {"role": "system", "content": system_query},
-            {"role": "user", "content": user_query},
-        ],        
-        temperature=1.2,
-        top_p=1,
-        timeout=10,
-    )
-    response = response['choices'][0]['message']['content']
+    response = None
+    if LLM_MODEL == 'GPT':
+        response = openai.ChatCompletion.create(
+            model='gpt-4',
+            messages=[
+                {"role": "system", "content": system_query},
+                {"role": "user", "content": user_query},
+            ],        
+            temperature=1.2,
+            top_p=1,
+            timeout=10,
+        )
+        response = response['choices'][0]['message']['content']
+    else:
+        response = cohere_client.generate(
+            prompt=user_query,
+            model='xlarge',
+            max_tokens=176,
+            temperature=3,
+            k=0,
+            p=0.75,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop_sequences=[],
+            return_likelihoods='NONE'
+        )
+        response = response.generations[0].text
 
     status = response.split('\n')[0].split(': ')[1]
     feedback = response.split('\n')[1].split(': ')[1]
@@ -78,20 +94,29 @@ def transcribe(audio_bytes):
     return transcription
 
 async def summarize(user_id, session_id, text, reference, save=True):
-    try:
-        print("Starting to summarize")
-        summary = await openai.ChatCompletion.acreate(
-            model='gpt-4',
-            messages=[
-                {"role": "system", "content": summarize_system},
-                {"role": "user", "content": text},
-            ],
-            temperature=1.2,
-            top_p=1,
-            timeout=10,
-        )
-        summary = summary['choices'][0]['message']['content']
-        print("Generated Summary")
+    try: 
+        summary = None
+        if LLM_MODEL == 'GPT':
+            print("Starting to summarize")
+            summary = await openai.ChatCompletion.acreate(
+                model='gpt-4',
+                messages=[
+                    {"role": "system", "content": summarize_system},
+                    {"role": "user", "content": text},
+                ],
+                temperature=1.2,
+                top_p=1,
+                timeout=10,
+            )
+            summary = summary['choices'][0]['message']['content']
+        else:
+            response = cohere_client.summarize(
+                text=text,
+                additional_command=summarize_system,
+                temperature=3,
+                )
+            summary = response['summary']
+        print("Generated Summary", summary)
         blobs = json.loads(summary)
         print("Summary was valid")
         for blob in blobs:
