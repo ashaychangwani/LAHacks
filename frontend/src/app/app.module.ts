@@ -35,8 +35,8 @@ import { LandingPageComponent } from './landing-page/landing-page.component';
 		ReactiveFormsModule,
         YouTubePlayerModule,
 		AuthModule.forRoot({
-			domain: environment.auth0.domain,
-			clientId: environment.auth0.clientId,
+			domain: environment.auth0_domain,
+			clientId: environment.auth0_clientId,
 			authorizationParams: {
 				redirect_uri: window.location.origin,
 			},
