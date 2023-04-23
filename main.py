@@ -146,7 +146,7 @@ def get_questions(user_id, session_id):
     return questions
 
 @app.get("/start-session")
-def start_session(user_id, session_id, session_name):
+def start_session(user_id, session_id, session_name="Temp Name"):
     """Start a new Session
 
     Args:

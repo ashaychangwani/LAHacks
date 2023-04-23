@@ -179,6 +179,7 @@ def start_session(user_id, session_id, session_name):
         "session_id": session_id,
         "session_name": session_name,
         "blobs" : [],
+        "quiz": {}
     }
     if user.exists:
         user = user.to_dict()
