@@ -6,6 +6,8 @@ import asyncio
 
 
 class Feedback(BaseModel):
+    user_id: str
+    session_id: str
     question: str
     reference_answer: str
     chosen_answer: str
@@ -51,6 +53,8 @@ async def feedback(feedback: Feedback):
 
     Args:
         feedback (Feedback): 
+            user_id (str): The user id
+            session_id (str): The session id
             question (str): The question that was asked
             reference_answer (list[str]): The correct answer (1 or more in case of MultipleAnswer type)
             chosen_answer (list[str]): The answer that was chosen (1 or more in case of MultipleAnswer type)
@@ -64,7 +68,7 @@ async def feedback(feedback: Feedback):
             references (list[str]): The references used to answer the question, to be shown with feedback
 
     """
-    feedback = brain.feedback(feedback.question, feedback.reference_answer, feedback.chosen_answer, feedback.context, feedback.references)
+    feedback = brain.feedback(feedback.user_id, feedback.session_id, feedback.question, feedback.reference_answer, feedback.chosen_answer, feedback.context, feedback.references)
     return feedback
 
 
@@ -296,3 +300,20 @@ async def pdf_summarize(pdfSession: PDFSession):
     """
     asyncio.create_task(brain.summarize_pdf(pdfSession.user_id, pdfSession.session_id, pdfSession.url))
     return {"status": "ok"}
+
+@app.get("/global-dashboard")
+def global_dashboard(user_id):
+    """Get dashboard data for a user
+
+    Args:
+        user_id (str): user_id
+
+    Returns:
+        dict:
+            bar_graph (image): Activity of the last 7 sessions 
+            pie_chart (image): Percentage of types of URLS in the recent submissions
+
+            
+    """
+    dashboard = brain.global_dashboard(user_id)
+    return dashboard
