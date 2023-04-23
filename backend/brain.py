@@ -441,7 +441,32 @@ def generate_pie_chart(sessions):
     buf.close()
 
     return img_base64
-    
+
+def line_chart(sessions):
+    percentage_scores = [s["quiz"]["stats"]["correct"] / s["quiz"]["stats"]["total"] * 100 for s in sessions]
+    session_names = [s["session_name"] for s in sessions]
+
+    # Create a line chart
+    fig, ax = plt.subplots()
+    ax.plot(session_names, percentage_scores)
+    ax.set_xlabel("Session Name")
+    ax.set_ylabel("Percentage Score")
+    ax.set_title("Percentage Score Over Past Sessions")
+
+    # Save the chart as an image in memory
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+
+    # Encode the image as a base64 string
+    base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    # Close the buffer and the plot
+    buf.close()
+    plt.close(fig)
+
+    # Print the base64 encoded image string
+    return base64_image
+
 def global_dashboard(user_id):
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
@@ -454,6 +479,7 @@ def global_dashboard(user_id):
         average_time = sum([(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in sessions]) / len(sessions)
         dashboard['bar_graph'] = generate_bar_graph(latest_sessions, average_time)
         dashboard['pie_chart'] = generate_pie_chart(latest_sessions)
+        dashboard['']
         return user['dashboard']
     else:
         raise Exception("User not found")
