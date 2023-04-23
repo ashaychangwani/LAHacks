@@ -7,6 +7,7 @@ import {
 	SuccessResponse,
 	QuizQuestion,
 } from './interfaces';
+import { Observable } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root',
@@ -21,13 +22,13 @@ export class UserService {
 	getStudySessions(user_email: string) {
 		let queryParams = new HttpParams();
 		queryParams = queryParams.append('user_id', user_email);
-		return this.http.get<StudySession[]>(
-			this.backend_url + '/get-sessions',
-			{
-				params: queryParams,
-			}
-		);
-		// return this.http.get<StudySession[]>('/assets/sessions.json');
+		// return this.http.get<StudySession[]>(
+		// 	this.backend_url + '/get-sessions',
+		// 	{
+		// 		params: queryParams,
+		// 	}
+		// );
+		return this.http.get<StudySession[]>('/assets/sessions.json');
 	}
 
 	// get details of a specific session with notes
@@ -35,13 +36,13 @@ export class UserService {
 		let queryParams = new HttpParams();
 		queryParams = queryParams.append('user_id', user_email);
 		queryParams = queryParams.append('session_id', session_id);
-		return this.http.get<StudySessionDetail>(
-			this.backend_url + '/get-session',
-			{
-				params: queryParams,
-			}
-		);
-		// return this.http.get<StudySessionDetail>('/assets/notes.json');
+		// return this.http.get<StudySessionDetail>(
+		// 	this.backend_url + '/get-session',
+		// 	{
+		// 		params: queryParams,
+		// 	}
+		// );
+		return this.http.get<StudySessionDetail>('/assets/notes.json');
 	}
 
 	// get quiz questions & answers for a specific session
@@ -49,24 +50,24 @@ export class UserService {
 		let queryParams = new HttpParams();
 		queryParams = queryParams.append('user_id', user_email);
 		queryParams = queryParams.append('session_id', session_id);
-		return this.http.get<Quiz>(this.backend_url + '/questions', {
-			params: queryParams,
-		});
-		// return this.http.get<Quiz>('/assets/quiz.json');
+		// return this.http.get<Quiz>(this.backend_url + '/questions', {
+		// 	params: queryParams,
+		// });
+		return this.http.get<Quiz>('/assets/quiz.json');
 	}
 
 	// generate quiz questions & answers for a specific session
 	generateQuiz(user_email: string, session_id: string) {
-		return this.http.post<SuccessResponse>(
-			this.backend_url + '/generate-questions',
-			{
-				user_id: user_email,
-				session_id: session_id,
-			}
-		);
-		// return {
-		// 	status: 'ok',
-		// };
+		// return this.http.post<SuccessResponse>(
+		// 	this.backend_url + '/generate-questions',
+		// 	{
+		// 		user_id: user_email,
+		// 		session_id: session_id,
+		// 	}
+		// );
+		return {
+			status: 'ok',
+		};
 	}
 
 	getFeedback(
@@ -75,15 +76,15 @@ export class UserService {
 		quiz_question: QuizQuestion,
 		provided_attempt: string[]
 	) {
-		return this.http.post<string>(this.backend_url + '/feedback', {
-			user_id: user_email,
-			session_id: session_id,
-			question: quiz_question.question,
-			reference_answer: quiz_question.answer,
-			chosen_answer: provided_attempt,
-			context: quiz_question.context,
-			references: quiz_question.references,
-		});
-		// return 'Correct Answer!';
+		// return this.http.post<string>(this.backend_url + '/feedback', {
+		// 	user_id: user_email,
+		// 	session_id: session_id,
+		// 	question: quiz_question.question,
+		// 	reference_answer: quiz_question.answer,
+		// 	chosen_answer: provided_attempt,
+		// 	context: quiz_question.context,
+		// 	references: quiz_question.references,
+		// });
+		return this.http.get<string>('/assets/feedback.json');
 	}
 }

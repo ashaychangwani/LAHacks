@@ -21,7 +21,7 @@
 				<div *ngIf="note.type == 'list'">
 					<ul>
 						{{
-							createArray(note.content)
+						createArray(note.content)
 						}}
 						<li *ngFor="let item of listArray">{{ item }}</li>
 					</ul>
@@ -32,7 +32,9 @@
 					</youtube-player>
 				</div>
 
-				<div *ngIf="note.type == 'graph'"></div>
+				<div *ngIf="note.type == 'graph'">
+					<img [src]="'data:image/png;base64,' + note.content" alt="Image" />
+				</div>
 
 				<!-- https://www.youtube.com/watch?v=SXmYUalHyYk -->
 			</div>
