@@ -6,6 +6,7 @@ import * as Google from "expo-auth-session/providers/google";
 import {NavigationContainer, CommonActions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from "./screens/HomeScreen";
+import SessionsScreen from './screens/SessionsScreen';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -16,7 +17,14 @@ const App = () => {
         name="HomeScreen"
         component={HomeScreen}
         options={{
-          headerShown: false,
+          headerShown: true,
+          }}
+      />
+      <Stack.Screen
+        name="SessionsScreen"
+        component={SessionsScreen}
+        options={{
+          headerShown: true,
           }}
       />
     </Stack.Navigator>

@@ -38,6 +38,7 @@ function HomeScreen({route,navigation}) {
       const user = await response.json();
       setEmail(user.email);
       setUserInfo(user);
+      navigation.navigate("SessionsScreen", {email: email})
     } catch (error) {
       // Add your own error handler here
     }
@@ -47,6 +48,7 @@ function HomeScreen({route,navigation}) {
     <View style={styles.container}>
       {userInfo === null ? (
         <Button
+          className="bg"
           title="Sign in with Google"
           disabled={!request}
           onPress={() => {
