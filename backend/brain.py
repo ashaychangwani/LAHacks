@@ -71,7 +71,7 @@ def feedback(user_id, session_id, question, reference_answer, chosen_answer, con
         )
         response = response.generations[0].text
 
-    status = response.split('\n')[0].split(': ')[1]
+    status = response.split('\n')[0].split(': ')[1].rstrip()
     feedback = response.split('\n')[1].split(': ')[1]
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
