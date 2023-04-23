@@ -36,7 +36,7 @@ def extract_video_id(url):
     
     # fail?
     return None
-def feedback(question, reference_answer, chosen_answer, context, references=None):
+def feedback(user_id, session_id, question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
     user_query = feedback_user.format(question=question, reference_answer=reference_answer, chosen_answer=chosen_answer, context=context)
     response = openai.ChatCompletion.create(
@@ -53,6 +53,17 @@ def feedback(question, reference_answer, chosen_answer, context, references=None
 
     status = response.split('\n')[0].split(': ')[1]
     feedback = response.split('\n')[1].split(': ')[1]
+    users_ref = firebase_db.collection(u'users')
+    user = users_ref.document(user_id).get()
+    if user.exists:
+        user = user.to_dict()
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                session['quiz']['stats']['total'] += 1
+                session['quiz']['stats']['correct'] += 1 if status.lower() == 'Correct' else 0
+                break
+        users_ref.document(user_id).set(user)
+
     return {
         "status": status,
         "feedback": feedback,
@@ -90,6 +101,8 @@ async def summarize(user_id, session_id, text, reference, save=True):
             for session in user['sessions']:
                 if session['session_id'] == session_id:
                     session['blobs'].extend(blobs)
+                    if reference not in session['stats']['text_urls']:
+                        session['stats']['text_urls'].append(reference)
                     break
             users_ref.document(user_id).set(user)
         return {
@@ -128,7 +141,13 @@ async def generate_questions(user_id, session_id, num_questions = 5):
                     text.extend(blob['content'])
             break
     text = json.dumps(text)
-    user_session['quiz'] = {}
+    user_session['quiz'] = {
+        "questions": [],
+        "stats": {
+            "correct": 0,
+            "total": 0
+        }
+    }
     users_ref.document(user_id).set(user)
     while len(questions) < num_questions:
         try:
@@ -183,7 +202,12 @@ def start_session(user_id, session_id, session_name):
         "session_id": session_id,
         "session_name": session_name,
         "blobs" : [],
-        "quiz": {}
+        "quiz": {},
+        "stats": {
+            "text_urls": [],
+            "video_urls": [],
+            "pdf_urls": [],
+        }
     }
     if user.exists:
         user = user.to_dict()
@@ -283,6 +307,9 @@ async def captions_from_youtube(user_id, session_id, url, title):
     for session in user['sessions']:
         if session['session_id'] == session_id:
             blobs = session['blobs']
+            if id not in session['stats']['video_urls']:
+                session['stats']['video_urls'].append(id)
+            break
     blobs.append({
         "type": "video",
         "content": url,
@@ -314,6 +341,7 @@ def get_sessions(user_id):
         for session in user['sessions']:
             del session['blobs']
             del session['quiz']
+            del session['stats']
             
         return user['sessions']
     else:
@@ -334,6 +362,8 @@ async def summarize_pdf(user_id, session_id, url):
         for session in user['sessions']:
             if session['session_id'] == session_id:
                 blobs = session['blobs']
+                if url not in session['stats']['pdf_urls']:
+                    session['stats']['pdf_urls'].append(url)
                 break
         blobs.append({
             "type": "heading",
@@ -386,7 +416,32 @@ def generate_bar_graph(latest_sessions, average_time):
 
     return image
 
+def generate_pie_chart(sessions):
+    #calculate sum of all sessions['stats']['text_urls'], ['video_urls'], ['pdf_urls']
+    text_len = sum([len(session['stats']['text_urls']) for session in sessions])
+    video_len = sum([len(session['stats']['video_urls']) for session in sessions])
+    pdf_len = sum([len(session['stats']['pdf_urls']) for session in sessions])
 
+    # Set the data for the pie chart
+    sizes = [text_len, video_len, pdf_len]
+    labels = ['Text URLs', 'Video URLs', 'PDF URLs']
+
+    # Create the pie chart
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    # Save the pie chart to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    # Encode the bytes buffer as base64
+    img_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+
+    return img_base64
+    
 def global_dashboard(user_id):
     users_ref = firebase_db.collection(u'users')
     user = users_ref.document(user_id).get()
@@ -398,6 +453,7 @@ def global_dashboard(user_id):
         latest_sessions = sorted(sessions, key=lambda x: x['created_at'], reverse=True)[:7]
         average_time = sum([(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in sessions]) / len(sessions)
         dashboard['bar_graph'] = generate_bar_graph(latest_sessions, average_time)
+        dashboard['pie_chart'] = generate_pie_chart(latest_sessions)
         return user['dashboard']
     else:
         raise Exception("User not found")
