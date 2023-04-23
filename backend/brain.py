@@ -293,7 +293,7 @@ async def generate_graph(user_id, session_id, text, reference):
                             "reference": reference
                         })
                     break
-
+        print(user)
         users_ref.document(user_id).set(user)
 
     except Exception as e:
@@ -402,16 +402,14 @@ def get_session(user_id, session_id):
                 user_session = session
                 for blob in user_session['blobs']:
                     if blob['type'] == 'graph':
-                        with open(file, "rb") as f:
-                            img_bytes = f.read()
                         with open(os.path.join("tmp", blob['content'] + ".jpg"), "rb") as f:
-                            blob['content'] = f.read()
+                            blob['content'] = base64.b64encode(f.read()).decode("utf-8")
                 return user_session
         else:
             raise Exception("Session not found")
     else:
         raise Exception("User not found")
-
+ 
 def generate_bar_graph(latest_sessions, average_time):
     y = [(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in latest_sessions]
     x_labels = [f"{session['name']} ({session['created_at'].strftime('%Y-%m-%d')})" for session in latest_sessions]
