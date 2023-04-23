@@ -538,7 +538,7 @@ def process_string(val):
      
 def create_word_cloud(user_session):
         text = ""
-        for blob in user_session:
+        for blob in user_session['blobs']:
             if blob['type'] == 'paragraph' or blob['type'] == 'heading':
                 text += " " + process_string(blob['content'])
             else:
