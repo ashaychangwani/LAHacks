@@ -28,10 +28,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     toolbarShown = true;
     chrome.tabs.onActivated.addListener(function (activeInfo) {
-      console.log("HERE showToolbar");
       chrome.tabs.sendMessage(activeInfo.tabId, { message: "showToolbar" });
     });
-
     return true;
 
     // chrome.tabs.query({}, function (tabs) {
@@ -61,19 +59,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
     });
     toolbarShown = false;
-    // chrome.tabs.query({}, function (tabs) {
-    //   tabs.forEach((tab) => {
-    //     chrome.tabs.sendMessage(tab.id, { message: "hideToolbar" });
-    //   });
-    // });
-    // return true;ss
-
-    chrome.tabs.onActivated.addListener(function (activeInfo) {
-      console.log("HERE hideToolbar");
-      chrome.tabs.sendMessage(activeInfo.tabId, { message: "hideToolbar" });
+    chrome.tabs.query({}, function (tabs) {
+      tabs.forEach((tab) => {
+        chrome.tabs.sendMessage(tab.id, { message: "hideToolbar" });
+      });
     });
-
     return true;
+
+    // chrome.tabs.onActivated.addListener(function (activeInfo) {
+    //   console.log("HERE hideToolbar");
+    //   chrome.tabs.sendMessage(activeInfo.tabId, { message: "hideToolbar" });
+    // });
+    // return true;
   } else if (message.command === "url") {
     console.log("IN URL");
     chrome.storage.local.get(["user_id", "session_id"], function (result) {

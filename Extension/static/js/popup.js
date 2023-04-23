@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
           startButton.innerText = "End Session";
           sessionUUID.innerText = newUUID;
           sessionUUID.parentElement.parentElement.classList.remove("d-none");
+          chrome.runtime.sendMessage({ command: "showToolbar" });
         } else {
           chrome.runtime.sendMessage({ command: "hideToolbar" });
           startButton.innerText = "Start Session";
