@@ -151,7 +151,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("In ytsummarize");
     chrome.storage.local.get(["user_id", "session_id"], function (result) {
       const data = {
-        title: message.text,
+        title: message.title,
         url: message.url,
         user_id: result.user_id,
         session_id: result.session_id,
