@@ -492,30 +492,33 @@ def generate_pie_chart(sessions):
     return img_base64
 
 def line_chart(sessions):
-    percentage_scores = [s["quiz"]["stats"]["correct"] / s["quiz"]["stats"]["total"] * 100 for s in sessions if s.get('quiz',None)]
-    session_names = [s["session_name"] for s in sessions if s.get('quiz',None)]
+    try:
+        percentage_scores = [s["quiz"]["stats"]["correct"] / s["quiz"]["stats"]["total"] * 100 for s in sessions if s.get('quiz',None)]
+        session_names = [s["session_name"] for s in sessions if s.get('quiz',None)]
 
-    # Create a line chart
-    fig, ax = plt.subplots()
-    ax.plot(session_names, percentage_scores)
-    ax.set_xlabel("Session Name")
-    ax.set_ylabel("Percentage Score")
-    ax.set_title("Percentage Score Over Past Sessions")
+        # Create a line chart
+        fig, ax = plt.subplots()
+        ax.plot(session_names, percentage_scores)
+        ax.set_xlabel("Session Name")
+        ax.set_ylabel("Percentage Score")
+        ax.set_title("Percentage Score Over Past Sessions")
 
-    # Save the chart as an image in memory
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png")
-    plt.clf()
+        # Save the chart as an image in memory
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png")
+        plt.clf()
 
-    # Encode the image as a base64 string
-    base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
+        # Encode the image as a base64 string
+        base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
 
-    # Close the buffer and the plot
-    buf.close()
-    plt.close(fig)
+        # Close the buffer and the plot
+        buf.close()
+        plt.close(fig)
 
-    # Print the base64 encoded image string
-    return base64_image
+        # Print the base64 encoded image string
+        return base64_image
+    except:
+        pass
 
 def global_dashboard(user_id):
     users_ref = firebase_db.collection(u'users')
