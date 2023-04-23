@@ -13,6 +13,7 @@ import os
 import glob
 import io
 import matplotlib.pyplot as plt
+import matplotlib
 matplotlib.use('Agg')
 
 from urllib.parse import urlparse, parse_qs
