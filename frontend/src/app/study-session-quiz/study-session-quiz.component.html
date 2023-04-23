@@ -8,20 +8,33 @@
 	</div>
 	<div *ngIf="quiz | async as quizz">
 		<form [formGroup]="formGroup">
-			<div *ngFor="
-								let question of quizz.questions;
-								let qindex = index
-							">
+			<div *ngFor="let question of quizz.questions; let qindex = index">
 				<div *ngIf="question.question_type == 'MultipleAnswer'">
 					<div class="wrapper">
 						<div class="container mt-sm-5 my-1 px-5">
 							<div class="question ml-sm-5 pl-sm-5 pt-2">
-								<div class="py-2 h4 mb-3">Q{{qindex}}. {{ question.question }}</div>
-								<div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2" id="options">
-									<div *ngFor="let option of question.options">
-										<label class="options">{{option}}
-											<input type="checkbox" [value]="option" (change)="onCheckboxChange($event)"
-												[formControlName]="'control_' + qindex" />
+								<div class="py-2 h4 mb-3">
+									Q{{ qindex }}. {{ question.question }}
+								</div>
+								<div
+									class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2"
+									id="options"
+								>
+									<div
+										*ngFor="let option of question.options"
+									>
+										<label class="options"
+											>{{ option }}
+											<input
+												type="checkbox"
+												[value]="option"
+												(change)="
+													onCheckboxChange($event)
+												"
+												[formControlName]="
+													'control_' + qindex
+												"
+											/>
 											<span class="checkmark-ch"></span>
 										</label>
 									</div>
@@ -29,15 +42,34 @@
 							</div>
 							<div class="row mt-4">
 								<div class="col text-center">
-									<button class="btn btn-success btn-sm" style="width:200px"
-										(click)="getFeedback(qindex)">
+									<button
+										class="btn btn-success btn-sm"
+										style="width: 200px"
+										(click)="getFeedback(qindex)"
+									>
 										Check Answer
 									</button>
 								</div>
 							</div>
 							<div *ngIf="this.feedback[qindex]" class="row">
-								<div class="alert alert-success feedback">{{ this.feedback[qindex] }}</div>
-								<div class="alert alert-danger feedback">{{ this.feedback[qindex] }}</div>
+								<div
+									*ngIf="
+										this.feedback[qindex].status ==
+										'Correct'
+									"
+									class="alert alert-success feedback"
+								>
+									{{ this.feedback[qindex].feedback | json }}
+								</div>
+								<div
+									*ngIf="
+										this.feedback[qindex].status ==
+										'Incorrect'
+									"
+									class="alert alert-danger feedback"
+								>
+									{{ this.feedback[qindex].feedback | json }}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -46,12 +78,25 @@
 					<div class="wrapper">
 						<div class="container mt-sm-5 my-1 px-5">
 							<div class="question ml-sm-5 pl-sm-5 pt-2">
-								<div class="py-2 h4 mb-3">Q{{qindex}}. {{ question.question }}</div>
-								<div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2" id="options">
-									<div *ngFor="let option of question.options">
-										<label class="options">{{option}}
-											<input type="radio" [value]="option"
-												[formControlName]="'control_' + qindex" />
+								<div class="py-2 h4 mb-3">
+									Q{{ qindex }}. {{ question.question }}
+								</div>
+								<div
+									class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2"
+									id="options"
+								>
+									<div
+										*ngFor="let option of question.options"
+									>
+										<label class="options"
+											>{{ option }}
+											<input
+												type="radio"
+												[value]="option"
+												[formControlName]="
+													'control_' + qindex
+												"
+											/>
 											<span class="checkmark"></span>
 										</label>
 									</div>
@@ -59,15 +104,34 @@
 							</div>
 							<div class="row mt-4">
 								<div class="col text-center">
-									<button class="btn btn-success btn-sm" style="width:200px"
-										(click)="getFeedback(qindex)">
+									<button
+										class="btn btn-success btn-sm"
+										style="width: 200px"
+										(click)="getFeedback(qindex)"
+									>
 										Check Answer
 									</button>
 								</div>
 							</div>
 							<div *ngIf="this.feedback[qindex]" class="row">
-								<div class="alert alert-success feedback">{{ this.feedback[qindex] }}</div>
-								<div class="alert alert-danger feedback">{{ this.feedback[qindex] }}</div>
+								<div
+									*ngIf="
+										this.feedback[qindex].status ==
+										'Correct'
+									"
+									class="alert alert-success feedback"
+								>
+									{{ this.feedback[qindex].feedback | json }}
+								</div>
+								<div
+									*ngIf="
+										this.feedback[qindex].status ==
+										'Incorrect'
+									"
+									class="alert alert-danger feedback"
+								>
+									{{ this.feedback[qindex].feedback | json }}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -76,24 +140,53 @@
 					<div class="wrapper">
 						<div class="container mt-sm-5 my-1 px-5">
 							<div class="question ml-sm-5 pl-sm-5 pt-2">
-								<div class="py-2 h4 mb-3">Q{{qindex}}. {{ question.question }}</div>
-								<div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2" id="options">
+								<div class="py-2 h4 mb-3">
+									Q{{ qindex }}. {{ question.question }}
+								</div>
+								<div
+									class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2"
+									id="options"
+								>
 									<label>
-										<textarea type="text" [formControlName]="'control_' + qindex"></textarea>
+										<textarea
+											type="text"
+											[formControlName]="
+												'control_' + qindex
+											"
+										></textarea>
 									</label>
 								</div>
 							</div>
 							<div class="row mt-4">
 								<div class="col text-center">
-									<button class="btn btn-success btn-sm" style="width:200px"
-										(click)="getFeedback(qindex)">
+									<button
+										class="btn btn-success btn-sm"
+										style="width: 200px"
+										(click)="getFeedback(qindex)"
+									>
 										Check Answer
 									</button>
 								</div>
 							</div>
 							<div *ngIf="this.feedback[qindex]" class="row">
-								<div class="alert alert-success feedback">{{ this.feedback[qindex] }}</div>
-								<div class="alert alert-danger feedback">{{ this.feedback[qindex] }}</div>
+								<div
+									*ngIf="
+										this.feedback[qindex].status ==
+										'Correct'
+									"
+									class="alert alert-success feedback"
+								>
+									{{ this.feedback[qindex].feedback | json }}
+								</div>
+								<div
+									*ngIf="
+										this.feedback[qindex].status ==
+										'Incorrect'
+									"
+									class="alert alert-danger feedback"
+								>
+									{{ this.feedback[qindex].feedback | json }}
+								</div>
 							</div>
 						</div>
 					</div>

@@ -4,6 +4,7 @@ import { AuthService } from '@auth0/auth0-angular';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { StudySessionDetail, Note } from '../interfaces';
+import { SessionStats } from '../interfaces';
 
 @Component({
   selector: 'app-study-session-stats',
@@ -13,6 +14,7 @@ import { StudySessionDetail, Note } from '../interfaces';
 export class StudySessionStatsComponent implements OnInit{
   userEmail: string = '';
   studySessionDetail!: Observable<StudySessionDetail>;
+  sessionStats!: SessionStats;
 
   constructor(
     private userService: UserService,
@@ -31,6 +33,10 @@ export class StudySessionStatsComponent implements OnInit{
           this.userEmail,
           sessionId
         );
+
+        this.userService.getSpecificDashboardStats(this.userEmail, sessionId).subscribe((stats) => {
+            this.sessionStats = stats;
+        });
       }
     });
   }

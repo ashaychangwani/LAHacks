@@ -6,6 +6,9 @@ import {
 	Quiz,
 	SuccessResponse,
 	QuizQuestion,
+	Feedback,
+	SessionStats,
+	GlobalStats,
 } from './interfaces';
 import { Observable } from 'rxjs';
 
@@ -90,7 +93,7 @@ export class UserService {
 		provided_attempt: string[]
 	) {
 		if (!this.test) {
-			return this.http.post<string>(this.backend_url + '/feedback', {
+			return this.http.post<Feedback>(this.backend_url + '/feedback', {
 				user_id: user_email,
 				session_id: session_id,
 				question: quiz_question.question,
@@ -100,7 +103,38 @@ export class UserService {
 				references: quiz_question.references,
 			});
 		} else {
-			return this.http.get<string>('/assets/feedback.json');
+			return this.http.get<Feedback>('/assets/feedback.json');
+		}
+	}
+
+	getSpecificDashboardStats(user_email: string, session_id: string) {
+		if (!this.test) {
+			let queryParams = new HttpParams();
+			queryParams = queryParams.append('user_id', user_email);
+			queryParams = queryParams.append('session_id', session_id);
+			return this.http.get<SessionStats>(
+				this.backend_url + '/session-dashbard',
+				{
+					params: queryParams,
+				}
+			);
+		} else {
+			return this.http.get<SessionStats>('/assets/session_stats.json');
+		}
+	}
+
+	getGeneralDashboardStats(user_email: string) {
+		if (!this.test) {
+			let queryParams = new HttpParams();
+			queryParams = queryParams.append('user_id', user_email);
+			return this.http.get<GlobalStats>(
+				this.backend_url + '/global-dashboard',
+				{
+					params: queryParams,
+				}
+			);
+		} else {
+			return this.http.get<GlobalStats>('/assets/session_stats.json');
 		}
 	}
 }

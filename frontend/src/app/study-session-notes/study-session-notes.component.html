@@ -11,7 +11,15 @@
 		<div class="mt-5">
 			<div *ngFor="let note of details.blobs">
 				<div *ngIf="note.type == 'heading'">
-					<h1>{{ note.content }}</h1>
+					<h1>
+						<a
+							[href]="note.reference"
+							target="_blank"
+							style="color: black; text-decoration: none"
+						>
+							{{ note.content }}
+						</a>
+					</h1>
 				</div>
 
 				<div *ngIf="note.type == 'paragraph'">
@@ -21,7 +29,7 @@
 				<div *ngIf="note.type == 'list'">
 					<ul>
 						{{
-						createArray(note.content)
+							createArray(note.content)
 						}}
 						<li *ngFor="let item of listArray">{{ item }}</li>
 					</ul>
@@ -33,10 +41,11 @@
 				</div>
 
 				<div *ngIf="note.type == 'graph'">
-					<img [src]="'data:image/png;base64,' + note.content" alt="Image" />
+					<img
+						[src]="'data:image/png;base64,' + note.content"
+						alt="Image"
+					/>
 				</div>
-
-				<!-- https://www.youtube.com/watch?v=SXmYUalHyYk -->
 			</div>
 		</div>
 	</div>

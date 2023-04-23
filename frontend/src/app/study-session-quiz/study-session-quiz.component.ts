@@ -3,7 +3,7 @@ import { UserService } from '../user.service';
 import { AuthService } from '@auth0/auth0-angular';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Quiz, StudySessionDetail } from '../interfaces';
+import { Feedback, Quiz, StudySessionDetail } from '../interfaces';
 import {
 	FormBuilder,
 	FormGroup,
@@ -22,7 +22,7 @@ export class StudySessionQuizComponent implements OnInit {
 	sessionId: string | null = '';
 	studySessionDetail!: Observable<StudySessionDetail>;
 	quiz!: Observable<Quiz>;
-	feedback: string[] = [];
+	feedback: Feedback[] = [];
 	formGroup: FormGroup;
 	explanation = '';
 
@@ -74,12 +74,18 @@ export class StudySessionQuizComponent implements OnInit {
 						const control = this.formGroup.controls['control_' + i];
 						this.feedback = [];
 						let attempted_answer = [];
-						if (question.question_type == 'MultipleAnswer') {
+						if (
+							question.question_type == 'MultipleChoice' ||
+							question.question_type == 'ShortAnswer'
+						) {
 							attempted_answer = [control.value];
 						} else {
 							attempted_answer =
 								this.formGroup.controls['checkArray'].value;
 						}
+						console.log(question.question_type);
+						console.log(attempted_answer);
+
 						this.userService
 							.getFeedback(
 								this.userEmail,
@@ -89,6 +95,7 @@ export class StudySessionQuizComponent implements OnInit {
 							)
 							.subscribe((feedback) => {
 								this.feedback[i] = feedback;
+								console.log(this.feedback[i]);
 							});
 					}
 				}
@@ -96,7 +103,6 @@ export class StudySessionQuizComponent implements OnInit {
 		});
 	}
 
-	// }
 	onCheckboxChange(e: any) {
 		const checkArray: FormArray = this.formGroup.get(
 			'checkArray'

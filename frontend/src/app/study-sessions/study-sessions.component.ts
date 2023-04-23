@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../user.service';
-import { StudySession } from '../interfaces';
+import { GlobalStats, StudySession } from '../interfaces';
 import { Observable } from 'rxjs';
 import { AuthService } from '@auth0/auth0-angular';
 
@@ -11,6 +11,7 @@ import { AuthService } from '@auth0/auth0-angular';
 })
 export class StudySessionsComponent implements OnInit {
   studySessions!: Observable<StudySession[]>;
+  globalStats!: GlobalStats;
   userEmail: string = '';
 
   constructor(private userService: UserService, public auth: AuthService) {}
@@ -21,6 +22,11 @@ export class StudySessionsComponent implements OnInit {
             this.userEmail = user.email? user.email : '';
             this.studySessions = this.userService.getStudySessions(this.userEmail);
         }
+
+        this.userService.getGeneralDashboardStats(this.userEmail).subscribe((data) => {
+            this.globalStats = data
+        });
+
     });
     
   }
