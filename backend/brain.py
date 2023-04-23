@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import hashlib
 from wordcloud import WordCloud
+import random
 matplotlib.use('Agg')
 
 from urllib.parse import urlparse, parse_qs
@@ -220,8 +221,8 @@ def get_questions(user_id, session_id):
     for session in user['sessions']:
         if session['session_id'] == session_id:
             return {
-                "questions": session['quiz']['questions'],
-                "num_questions": len(session['quiz']['questions'])
+                "questions": session['quiz'].get('questions',[]),
+                "num_questions": len(session['quiz'].get('questions',[]))
             }
     return []
 
@@ -436,8 +437,8 @@ def get_session(user_id, session_id):
         raise Exception("User not found")
  
 def generate_bar_graph(latest_sessions, average_time):
-    y = [(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in latest_sessions]
-    x_labels = [f"{session['name']} ({session['created_at'].strftime('%Y-%m-%d')})" for session in latest_sessions]
+    y = [(session.get('ended_at', session['created_at'])- session['created_at']).total_seconds() / 60 for session in latest_sessions]
+    x_labels = [f"{session['session_name']} ({session['created_at'].strftime('%Y-%m-%d')})" for session in latest_sessions]
     x = range(len(latest_sessions))
 
     # Create bar graph
@@ -452,6 +453,7 @@ def generate_bar_graph(latest_sessions, average_time):
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
+    plt.clf()
 
     # Save the bytes of the image to the variable temp
     temp = buf.getvalue()
@@ -480,6 +482,8 @@ def generate_pie_chart(sessions):
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
+    plt.clf()
+
 
     # Encode the bytes buffer as base64
     img_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
@@ -488,8 +492,8 @@ def generate_pie_chart(sessions):
     return img_base64
 
 def line_chart(sessions):
-    percentage_scores = [s["quiz"]["stats"]["correct"] / s["quiz"]["stats"]["total"] * 100 for s in sessions]
-    session_names = [s["session_name"] for s in sessions]
+    percentage_scores = [s["quiz"]["stats"]["correct"] / s["quiz"]["stats"]["total"] * 100 for s in sessions if s.get('quiz',None)]
+    session_names = [s["session_name"] for s in sessions if s.get('quiz',None)]
 
     # Create a line chart
     fig, ax = plt.subplots()
@@ -501,6 +505,7 @@ def line_chart(sessions):
     # Save the chart as an image in memory
     buf = io.BytesIO()
     fig.savefig(buf, format="png")
+    plt.clf()
 
     # Encode the image as a base64 string
     base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
@@ -521,11 +526,11 @@ def global_dashboard(user_id):
         sessions = user['sessions']
         #get the latest 7 sessions sorted by created_at attribute
         latest_sessions = sorted(sessions, key=lambda x: x['created_at'], reverse=True)[:7]
-        average_time = sum([(session['ended_at'] - session['created_at']).total_seconds() / 60 for session in sessions]) / len(sessions)
+        average_time = sum([(session.get('ended_at', session['created_at']) - session['created_at']).total_seconds() / 60 for session in sessions]) / len(sessions)
         dashboard['bar_graph'] = generate_bar_graph(latest_sessions, average_time)
         dashboard['pie_chart'] = generate_pie_chart(latest_sessions)
-        dashboard['']
-        return user['dashboard']
+        dashboard['line_chart'] = line_chart(latest_sessions)
+        return dashboard
     else:
         raise Exception("User not found")
 
