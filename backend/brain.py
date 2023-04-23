@@ -1,4 +1,4 @@
-from backend import YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
+from __init__ import YOUTUBE_BLOB_SIZE,firebase_db, graph_system, feedback_system, feedback_user, summarize_system, questions_system, FormatError
 import json
 import openai
 import traceback
@@ -76,10 +76,10 @@ def transcribe(audio_bytes):
     transcription = openai.Audio.transcribe("whisper-1", audio_bytes)
     return transcription
 
-async def summarize(user_id, session_id, text, reference, save=True):
+def summarize(user_id, session_id, text, reference, save=True):
     try:
         print("Starting to summarize")
-        summary = await openai.ChatCompletion.acreate(
+        summary = openai.ChatCompletion.create(
             model='gpt-4',
             messages=[
                 {"role": "system", "content": summarize_system},
@@ -111,7 +111,7 @@ async def summarize(user_id, session_id, text, reference, save=True):
         }
     except Exception as e:
         print("Exception in summarize",e,traceback.format_exc())
-        return await summarize(user_id, session_id, text, reference)
+        return summarize(user_id, session_id, text, reference)
 
 async def generate_questions(user_id, session_id, num_questions = 5):
     questions = []
@@ -174,10 +174,10 @@ async def generate_questions(user_id, session_id, num_questions = 5):
                 print("question was valid")
                 questions.append(question_obj)
                 prev_questions.append(question_obj['question'])
-                users_ref.document(user_id).update({
-                    'sessions.{}.quiz.questions'.format(user_idx) : questions,
-                    'sessions.{}.quiz.num_questions'.format(user_idx) : len(questions)
-                })
+                user = users_ref.document(user_id).get().to_dict()
+                user['sessions'][user_idx]['quiz']['questions'] = questions
+                user['sessions'][user_idx]['quiz']['num_questions'] = len(questions)
+                users_ref.document(user_id).set(user)
             else:
                 raise FormatError
         except Exception as e:
@@ -298,7 +298,7 @@ async def generate_graph(user_id, session_id, text, reference):
         print("An error occurred, printing stack trace", e)
 
 
-async def captions_from_youtube(user_id, session_id, url, title):
+def captions_from_youtube(user_id, session_id, url, title):
     id = extract_video_id(url)
     transcripts = YouTubeTranscriptApi.get_transcript(id, cookies='tmp/cookies.txt')
     i = 0
@@ -331,10 +331,10 @@ async def captions_from_youtube(user_id, session_id, url, title):
         while i < len(transcripts) and transcripts[i]['start'] - start < YOUTUBE_BLOB_SIZE:
             text += " "+transcripts[i]['text']
             i += 1
-        blobs.extend((await summarize(user_id, session_id, text, reference, save=False))['blobs'])
-        users_ref.document(user_id).update({
-            'sessions.{}.blobs'.format(userIdx): blobs
-        })
+        blobs.extend((summarize(user_id, session_id, text, reference, save=False))['blobs'])
+        user = users_ref.document(user_id).get().to_dict()
+        user['sessions'][userIdx]['blobs'] = blobs
+        users_ref.document(user_id).set(user)
         print("Extending blobs in YT Summarize")
     return {
         "content": blobs
@@ -383,9 +383,9 @@ async def summarize_pdf(user_id, session_id, url):
         for page in reader.pages:
             text = page.extract_text()
             blobs.extend((await summarize(user_id, session_id, text, url, save=False))['blobs'])
-            users_ref.document(user_id).update({
-                'sessions.{}.blobs'.format(userIdx): blobs
-            })
+            user = users_ref.document(user_id).get().to_dict()
+            user['sessions'][userIdx]['blobs'] = blobs
+            users_ref.document(user_id).set(user)
     except Exception as e:
         print("EXception occured", e, traceback.format_exc())
 
@@ -495,3 +495,6 @@ def global_dashboard(user_id):
         return user['dashboard']
     else:
         raise Exception("User not found")
+
+if __name__ == '__main__':
+    captions_from_youtube('ysolanki@usc.edu','a3aaa42a-0a9b-49dc-8478-60867a72155e','https://www.youtube.com/watch?v=7TavVZMewpY','Test Title')
