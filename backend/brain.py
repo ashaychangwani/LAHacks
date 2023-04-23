@@ -269,7 +269,7 @@ async def generate_graph(user_id, session_id, text, reference):
         code = code['choices'][0]['message']['content']
         print("Generated code")
         with open("tmp/graph.py", "w") as f:
-            f.write(code)
+            f.write(code.replace('```python', '').replace('```', ''))
         
         subprocess.call("python tmp/graph.py", shell=True)
         print("code was valid")
@@ -293,7 +293,6 @@ async def generate_graph(user_id, session_id, text, reference):
                             "reference": reference
                         })
                     break
-        print(user)
         users_ref.document(user_id).set(user)
 
     except Exception as e:
