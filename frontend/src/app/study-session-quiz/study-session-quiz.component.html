@@ -1,106 +1,104 @@
-<div class="px-4 py-5">
-	<div *ngIf="studySessionDetail | async as details">
-		<div class="h6 text-muted">{{ userEmail }}</div>
-		<div class="display-6 fw-bold">
-			Session: {{ details.session_name }} Quiz
-		</div>
-		<div class="h6 text-muted">
-			{{ details.created_at | date : "longDate" }} @
-			{{ details.created_at | date : "shortTime" }}
-		</div>
-		<div class="mt-5">
-			<div *ngIf="quiz | async as quizz">
-				<form [formGroup]="formGroup">
-					<div
-						*ngFor="
-							let question of quizz.questions;
-							let qindex = index
-						"
-					>
-						<div *ngIf="question.question_type == 'MultipleAnswer'">
-							{{ question.question }} MultipleAnswer
-							<div *ngFor="let option of question.options">
-								<label>
-									<input
-										type="checkbox"
-										[value]="option"
-										(change)="onCheckboxChange($event)"
-										[formControlName]="'control_' + qindex"
-									/>
-									<span>{{ option }}</span>
-								</label>
+<div *ngIf="studySessionDetail | async as details">
+	<div class="display-6 fw-bold mt-5">
+		Session: {{ details.session_name }} Quiz
+	</div>
+	<div class="h6 text-muted">
+		{{ details.created_at | date : "longDate" }} @
+		{{ details.created_at | date : "shortTime" }}
+	</div>
+	<div *ngIf="quiz | async as quizz">
+		<form [formGroup]="formGroup">
+			<div *ngFor="
+								let question of quizz.questions;
+								let qindex = index
+							">
+				<div *ngIf="question.question_type == 'MultipleAnswer'">
+					<div class="wrapper">
+						<div class="container mt-sm-5 my-1 px-5">
+							<div class="question ml-sm-5 pl-sm-5 pt-2">
+								<div class="py-2 h4 mb-3">Q{{qindex}}. {{ question.question }}</div>
+								<div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2" id="options">
+									<div *ngFor="let option of question.options">
+										<label class="options">{{option}}
+											<input type="checkbox" [value]="option" (change)="onCheckboxChange($event)"
+												[formControlName]="'control_' + qindex" />
+											<span class="checkmark-ch"></span>
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="row mt-4">
+								<div class="col text-center">
+									<button class="btn btn-success btn-sm" style="width:200px"
+										(click)="getFeedback(qindex)">
+										Check Answer
+									</button>
+								</div>
+							</div>
+							<div *ngIf="this.feedback[qindex]" class="row">
+								<div class="alert alert-success feedback">{{ this.feedback[qindex] }}</div>
+								<div class="alert alert-danger feedback">{{ this.feedback[qindex] }}</div>
 							</div>
 						</div>
-						<div *ngIf="question.question_type == 'MultipleChoice'">
-							{{ question.question }} MultipleChoice
-							<div *ngFor="let option of question.options">
-								<label>
-									<input
-										type="radio"
-										[value]="option"
-										[formControlName]="'control_' + qindex"
-									/>
-									<span>{{ option }}</span>
-								</label>
-							</div>
-						</div>
-						<div *ngIf="question.question_type == 'ShortAnswer'">
-							{{ question.question }} ShortAnswer
-							<label>
-								<textarea
-									type="text"
-									[formControlName]="'control_' + qindex"
-								></textarea>
-							</label>
-						</div>
-						<div class="feedback">{{ this.feedback[qindex] }}</div>
-						<button
-							class="btn btn-primary"
-							(click)="getFeedback(qindex)"
-						>
-							Check Answer
-						</button>
 					</div>
-				</form>
+				</div>
+				<div *ngIf="question.question_type == 'MultipleChoice'">
+					<div class="wrapper">
+						<div class="container mt-sm-5 my-1 px-5">
+							<div class="question ml-sm-5 pl-sm-5 pt-2">
+								<div class="py-2 h4 mb-3">Q{{qindex}}. {{ question.question }}</div>
+								<div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2" id="options">
+									<div *ngFor="let option of question.options">
+										<label class="options">{{option}}
+											<input type="radio" [value]="option"
+												[formControlName]="'control_' + qindex" />
+											<span class="checkmark"></span>
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="row mt-4">
+								<div class="col text-center">
+									<button class="btn btn-success btn-sm" style="width:200px"
+										(click)="getFeedback(qindex)">
+										Check Answer
+									</button>
+								</div>
+							</div>
+							<div *ngIf="this.feedback[qindex]" class="row">
+								<div class="alert alert-success feedback">{{ this.feedback[qindex] }}</div>
+								<div class="alert alert-danger feedback">{{ this.feedback[qindex] }}</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div *ngIf="question.question_type == 'ShortAnswer'">
+					<div class="wrapper">
+						<div class="container mt-sm-5 my-1 px-5">
+							<div class="question ml-sm-5 pl-sm-5 pt-2">
+								<div class="py-2 h4 mb-3">Q{{qindex}}. {{ question.question }}</div>
+								<div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3 ms-2" id="options">
+									<label>
+										<textarea type="text" [formControlName]="'control_' + qindex"></textarea>
+									</label>
+								</div>
+							</div>
+							<div class="row mt-4">
+								<div class="col text-center">
+									<button class="btn btn-success btn-sm" style="width:200px"
+										(click)="getFeedback(qindex)">
+										Check Answer
+									</button>
+								</div>
+							</div>
+							<div *ngIf="this.feedback[qindex]" class="row">
+								<div class="alert alert-success feedback">{{ this.feedback[qindex] }}</div>
+								<div class="alert alert-danger feedback">{{ this.feedback[qindex] }}</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-
-			<!-- <div class="container">
-        <header>
-          <h1>Quiz for your study session</h1>
-          <p>Test your knowledge! Good luck with the quiz!</p>
-        </header>
-
-        <div class="row">
-          <h1>MCQ Quiz</h1>
-          <p>Select all correct answers.</p>
-        </div>
-
-        <form [formGroup]="form" (ngSubmit)="submitForm()" novalidate>
-          <div class="row">
-            <div class="quiz-yn-group col-md-6">
-              <div class="quiz-question">{{ question_data.question }}</div>
-
-              <div class="checkbox" *ngFor="let number of [0, 1, 2, 3]">
-                <input
-                  type="checkbox"
-                  [value]="question_data.options[number]"
-                  (change)="onCheckboxChange($event)"
-                />{{ question_data.options[number] }}
-              </div>
-            </div>
-
-            <div
-              class="error quiz-answer text-center"
-              *ngIf="this.form.controls['checkArray'].errors?.['required']"
-            >
-              Checkbox is required, select atleast one value.
-            </div>
-            <input type="submit" value="Submit" />
-
-            <div>{{ explanation }}</div>
-          </div>
-        </form>
-      </div> -->
-		</div>
+		</form>
 	</div>
 </div>

@@ -1,3 +1,41 @@
+// .btn {
+//     width: 150px;
+// }
+
 .btn {
     width: 150px;
+}
+.grey-bg {  
+    background-color: #F5F7FA;
+}
+
+.pill-button {
+  background-color: #ddd;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.main_card .card:hover {
+  box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5);
+  transition: all 0.3s ease;
+}
+
+.main_card .task-list li:hover {
+  background: #ecf0f1;
+  transition: all .2s ease;
+}
+
+.main_card .card-actions .btn:hover {
+  color: #f36525;
+}
+
+.body {
+    background-color: #FFFFCE;
 }
