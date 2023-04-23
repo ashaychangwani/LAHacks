@@ -12,7 +12,7 @@ function HomeScreen({route,navigation}) {
   const [token, setToken] = useState("");
   const [userInfo, setUserInfo] = useState(null);
   const [email, setEmail] = useState(null);
-
+  const baseUrl = 'http://128.122.49.69:20440/'
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: "48155888637-grafopqvvm80gp3qo6vfptu40bti1a33.apps.googleusercontent.com",
     iosClientId: "48155888637-bdcknhn8ob4i7t6a9qa5sa6cc9l1iomp.apps.googleusercontent.com",
@@ -38,7 +38,7 @@ function HomeScreen({route,navigation}) {
       const user = await response.json();
       setEmail(user.email);
       setUserInfo(user);
-      navigation.navigate("SessionsScreen", {email: email})
+      navigation.navigate("SessionsScreen", {email: user.email, baseUrl})
     } catch (error) {
       // Add your own error handler here
     }
