@@ -29,6 +29,9 @@ class YouTubeSession(Session):
     url: str
     title: str
 
+class PDFSession(Session):
+    url: str
+
 class Content(BaseModel):
     session_id: str
     user_id: str
@@ -276,4 +279,20 @@ async def update_github_repo(request: Request) -> dict:
     os.system("git pull")
     return {"message": "Updated successfully"}
 
-###PDF
+@app.post("/pdf-summarize")
+async def pdf_summarize(pdfSession: PDFSession):
+    """Generate Summary for a PDF
+
+    Args:
+        ytSession (PDFSession): dict
+            user_id (str): The user id
+            session_id (str): The session id
+            url (str): The URL to the PDF
+
+    Returns:
+        dict:
+            status (str): The status of the operation. Will be ok
+
+    """
+    asyncio.create_task(brain.summarize_pdf(pdfSession.user_id, pdfSession.session_id, pdfSession.url))
+    return {"status": "ok"}

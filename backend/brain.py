@@ -62,6 +62,7 @@ def transcribe(audio_bytes):
 
 async def summarize(user_id, session_id, text, reference, save=True):
     try:
+        print("Starting to summarize")
         summary = await openai.ChatCompletion.acreate(
             model='gpt-4',
             messages=[
@@ -75,6 +76,7 @@ async def summarize(user_id, session_id, text, reference, save=True):
         summary = summary['choices'][0]['message']['content']
         print("Generated Summary")
         blobs = json.loads(summary)
+        print("Summary was valid")
         for blob in blobs:
             blob['reference'] = reference 
         users_ref = firebase_db.collection(u'users')
@@ -312,32 +314,31 @@ def get_sessions(user_id):
     else:
         return []
 
-def summarize_pdf(user_id, session_id, url):
+async def summarize_pdf(user_id, session_id, url):
     try:
         response = requests.get(url)
         with open('tmp/pdf.pdf', 'wb') as f:
             f.write(response.content)
         reader = PdfReader('tmp/pdf.pdf')
-        blobs = [{
+        users_ref = firebase_db.collection(u'users')
+        user = users_ref.document(user_id).get()
+        if not user.exists:
+            return None
+        user = user.to_dict()
+        blobs = None
+        for session in user['sessions']:
+            if session['session_id'] == session_id:
+                blobs = session['blobs']
+                break
+        blobs.append({
             "type": "heading",
             "content": url,
             "reference": url
-        }]
+        })
         for page in reader.pages:
             text = page.extract_text()
-            blobs.extend(summarize(user_id, session_id, text, url, save=False))
-        users_ref = firebase_db.collection(u'users')
-        user = users_ref.document(user_id).get()
-        if user.exists:
-            user = user.to_dict()
-            for session in user['sessions']:
-                if session['session_id'] == session_id:
-                    session['blobs'].extend(blobs)
-                    break
+            blobs.extend((await summarize(user_id, session_id, text, url, save=False))['blobs'])
             users_ref.document(user_id).set(user)
-        return {
-            "content": blobs
-        }
     except Exception as e:
         print("EXception occured", e, traceback.format_exc())
 
