@@ -40,7 +40,7 @@ def extract_video_id(url):
     return None
 def feedback(user_id, session_id, question, reference_answer, chosen_answer, context, references=None):
     system_query = feedback_system.format()
-    user_query = feedback_user.format(question=question, reference_answer=reference_answer, chosen_answer=chosen_answer, context=context)
+    user_query = feedback_user.format(question=question, reference_answer=', '.join(reference_answer), chosen_answer=', '.join(chosen_answer), context=context)
     response = None
     if LLM_MODEL == 'GPT':
         response = openai.ChatCompletion.create(
