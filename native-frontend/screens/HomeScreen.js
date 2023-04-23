@@ -35,11 +35,17 @@ function HomeScreen({ route, navigation }) {
   useEffect(() => {
     console.log("INside useEffect")
     const unsubscribe = navigation.addListener('focus', () => {
+      console.log("Found focus", email)
       if(email != null)
         navigateToSessions()
     });
     return unsubscribe;
-  }, [navigation, email])
+  }, [navigation])
+
+  useEffect(() => {
+    if(email != null)
+      navigateToSessions();
+  }, [email])
 
   const getUserInfo = async () => {
     try {
@@ -52,7 +58,6 @@ function HomeScreen({ route, navigation }) {
 
       const user = await response.json();
       setEmail(user.email);
-      navigateToSessions()
       setUserInfo(user);
     } catch (error) {
       // Add your own error handler here

@@ -36,6 +36,27 @@ function SessionScreen({route, navigation}) {
 
     const renderItem = (item) => {
         console.log("Rendering item", item)
+        if(item.type == 'heading')
+            return (
+                <View>
+                    <Text className="font-bold text-xl">{item.content}</Text>
+                </View>
+            )
+        else if(item.type == 'paragraph')
+            return (
+                <View>
+                    <Text>{item.content}</Text>
+                </View>
+            )
+        else if(item.type == 'list')
+            return (
+                <View>
+                    {item.content.map((listItem) => (
+                        <Text>* {listItem}</Text>
+                    ))}
+                </View>
+            )
+            
         return (
             <View className="w-full bg-gray-500 h-5">
                 <Text>{item.type}</Text>

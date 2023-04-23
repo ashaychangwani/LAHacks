@@ -58,7 +58,7 @@ function SessionsScreen({route, navigation}) {
             <FlatList
                 data={sessions}
                 renderItem={({item}) => renderItem(item)}
-                keyExtractor={item => item.session_id}
+                keyExtractor={(item, index) => index.toString()}
                 refreshControl={<RefreshControl refreshing={fetching} onRefresh={onRefresh} />}
             />
 
