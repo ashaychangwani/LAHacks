@@ -81,7 +81,9 @@ function createToolbar(show) {
   addSelectionButton.addEventListener("click", () => {
     // code for adding selection
     const selectedText = getSelectedText();
+    console.log("selectionButton", selectedText);
     const url = window.location.href;
+    console.log("url", url);
     chrome.runtime.sendMessage(
       { command: "selectedText", url: url, text: selectedText },
       function (response) {
