@@ -11,8 +11,8 @@ class Feedback(BaseModel):
     user_id: str
     session_id: str
     question: str
-    reference_answer: list(str)
-    chosen_answer: list(str)
+    reference_answer: list
+    chosen_answer: list
     context: str
     references: list | None
 
